@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973eaaa8dae4e0c4cb50220e7a5a4694, type: 3}
+  m_Name: Ingredient_Steak
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.IngredientDefinition
+  Type: 9
+  DisplayName: "\uACE0\uAE30"
+  Icon: {fileID: 21300000, guid: 654ffa2ff491d3542890ec7af18dc94f, type: 3}
+  RawModel: {fileID: 919132149155446097, guid: 790720372f3a8ba44b36bb702d7ee57b, type: 3}
+  ChoppingModel: {fileID: 919132149155446097, guid: 87f56131f6bb4064296c9749bf1d2e85, type: 3}
+  ChoppedModel: {fileID: 0}
+  CookedModel: {fileID: 0}
+  BurnedModel: {fileID: 0}
+  DisplayScale: 1.5
+  PlateModel: {fileID: 0}
+  PlateTopperModel: {fileID: 0}
+  PlateSortOrder: 10
+  PlateStackHeight: 0.16
+  Choppable: 1
+  Cookable: 0
+  ChopResult: {fileID: 11400000, guid: 9e4990c0323161a4391098541e0d666e, type: 2}
+  ChopSeconds: 1.9
+  CookSeconds: 6
+  BurnSeconds: 6
+  GroundLifeSeconds: 20

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3333522cc1ee27a479a9cf3b647df35a, type: 3}
+  m_Name: Level_Dungeon01
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.LevelDefinition
+  DisplayName: "\uB358\uC804 1\uCE35 - \uBAA8\uD5D8\uAC00 \uC2DD\uB2F9"
+  DurationSeconds: 240
+  FirstOrderDelay: 8
+  Menu:
+  - {fileID: 11400000, guid: 13ce99120183a5a429f27897e52817be, type: 2}
+  - {fileID: 11400000, guid: 28921bd44a63bc34f8a7bbbae5d4a287, type: 2}
+  Difficulty:
+    StartSpawnInterval: 28
+    MinSpawnInterval: 14
+    MinTimeLimitScale: 0.72
+    ModifierUnlockProgress: 0.35
+    MaxModifierChance: 0.6
+    MaxActiveOrders: 3
+  ScoreRules:
+    MaxTipRatio: 0.5
+    ExpirePenaltyGold: 10
+    MismatchPenaltyGold: 5
+    ComboStepMultiplier: 0.1
+    MaxComboMultiplier: 2
+  Stars:
+    OneStar: 60
+    TwoStar: 110
+    ThreeStar: 170
+  RandomSeed: 0

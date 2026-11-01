@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6832bac2394102941a0930e570c9416d, type: 3}
+  m_Name: IngredientCatalog
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.IngredientCatalog
+  _definitions:
+  - {fileID: 11400000, guid: d6a611555af00514ca3bf3c793bdba1e, type: 2}
+  - {fileID: 11400000, guid: d9df50b660d922d458119a3ef24a559a, type: 2}
+  - {fileID: 11400000, guid: 9e4990c0323161a4391098541e0d666e, type: 2}
+  - {fileID: 11400000, guid: e4c435d7e0a84404aaaf37d24a8d3ea2, type: 2}
+  - {fileID: 11400000, guid: 464dd352f5a854d4598edc7e0b0a6a08, type: 2}
+  - {fileID: 11400000, guid: a6bce6e42b41ba44a9a7fcff8a367027, type: 2}
+  - {fileID: 11400000, guid: 816c70c312a87b042a9056976a09b07c, type: 2}

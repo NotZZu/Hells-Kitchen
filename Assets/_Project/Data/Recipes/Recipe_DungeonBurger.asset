@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba93f80cdfc17c342b341a0f7f292390, type: 3}
+  m_Name: Recipe_DungeonBurger
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.RecipeDefinition
+  Id: dungeon_burger
+  DisplayName: "\uB358\uC804 \uBC84\uAC70"
+  Ingredients:
+  - Type: 1
+    State: 0
+  - Type: 2
+    State: 2
+  - Type: 3
+    State: 1
+  - Type: 4
+    State: 1
+  BaseReward: 22
+  BaseTimeLimitSeconds: 175
+  OptionalAdditions:
+  - Type: 5
+    State: 1
+  - Type: 6
+    State: 1
+  RemovableIngredients:
+  - Type: 3
+    State: 1
+  - Type: 4
+    State: 1
+  CompletedModel: {fileID: 919132149155446097, guid: 7cce89742264f3b479c8741a85442c70, type: 3}
+  Icon: {fileID: 0}

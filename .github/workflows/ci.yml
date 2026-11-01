@@ -1,0 +1,152 @@
+name: CI
+
+# Hell's Kitchen EditMode 시험(HK + Testing.Shared)을 헤드리스 Unity 로 돌리고 Report 로 요약한다.
+# 판정: 알려진 결함(Tools/known-defects.txt)만 실패면 초록, 새 실패나 시험 없음이면 빨강.
+#
+# 필요한 시크릿 (Settings > Secrets and variables > Actions):
+#   UNITY_EMAIL, UNITY_PASSWORD : 이메일+비밀번호로 로그인하는 CI 전용 Unity ID
+#   SHARED_REPO_TOKEN           : 비공개 저장소 NotZZu/Testing.Shared 읽기 전용 토큰
+#                                 (fine-grained, 해당 저장소 Contents: Read 만)
+# 아트 에셋 팩은 저장소에 없다. EditMode 시험은 아트 없이 돌아가야 한다.
+
+on:
+  push:
+    branches: [ main, 'feature/**', 'fix/**' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  UNITY_VERSION: 6000.3.8f1
+
+jobs:
+  editmode:
+    name: Hell's Kitchen 시험 (EditMode)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      # Unity 도커 이미지가 커서 기본 실행기 디스크가 부족해질 수 있다.
+      - name: 디스크 공간 확보
+        run: |
+          df -h /
+          sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift /usr/local/.ghcup
+          sudo docker image prune --all --force > /dev/null
+          df -h /
+
+      - uses: actions/checkout@v4
+
+      # 시크릿 값은 출력하지 않고, 있는지 없는지만 알려 준다.
+      - name: 시크릿 확인
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          SHARED_REPO_TOKEN: ${{ secrets.SHARED_REPO_TOKEN }}
+        run: |
+          for name in UNITY_EMAIL UNITY_PASSWORD SHARED_REPO_TOKEN; do
+            if [ -n "${!name}" ]; then echo "$name: 설정됨"; else echo "$name: 없음"; missing=1; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::위에서 '없음'인 시크릿을 먼저 등록하세요. 파일 위쪽 주석 참고."
+            exit 1
+          fi
+
+      # Packages/manifest.json 에 적힌 Testing.Shared 버전(#태그)을 읽어 같은 태그를 받는다.
+      - name: Testing.Shared 버전 읽기
+        id: shared
+        run: |
+          ref=$(grep -o 'Testing.Shared.git#[^"]*' Packages/manifest.json | cut -d'#' -f2)
+          [ -n "$ref" ] || { echo "::error::manifest.json 에서 Testing.Shared 태그를 찾지 못했다."; exit 1; }
+          echo "Testing.Shared 태그: $ref"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Testing.Shared 받기 (비공개 저장소)
+        uses: actions/checkout@v4
+        with:
+          repository: NotZZu/Testing.Shared
+          ref: ${{ steps.shared.outputs.ref }}
+          token: ${{ secrets.SHARED_REPO_TOKEN }}
+          path: _shared
+          persist-credentials: false
+
+      # Library 캐시는 패키지 연결을 바꾸기 전에 키를 계산한다.
+      - name: Library 캐시
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # Unity 도커 안에서는 토큰을 쓸 수 없으니, 방금 받은 폴더(_shared)를 로컬 패키지로 연결한다.
+      # 커밋된 manifest/lock 은 git URL 그대로이고, 이 변경은 이 실행 안에서만 쓰인다.
+      - name: Testing.Shared 를 로컬 패키지로 연결
+        run: |
+          python3 - <<'PY'
+          import json
+          name = "com.shlee.testing-shared"
+          local = "file:../_shared"
+          m = json.load(open("Packages/manifest.json", encoding="utf-8"))
+          m["dependencies"][name] = local
+          json.dump(m, open("Packages/manifest.json", "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+          lock = json.load(open("Packages/packages-lock.json", encoding="utf-8"))
+          deps = json.load(open("_shared/package.json", encoding="utf-8")).get("dependencies", {})
+          lock["dependencies"][name] = {"version": local, "depth": 0, "source": "local", "dependencies": deps}
+          json.dump(lock, open("Packages/packages-lock.json", "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+          PY
+          grep -n "testing-shared" Packages/manifest.json
+
+      # 알려진 결함 때문에 이 단계는 실패할 수 있으므로 계속 진행하고, 최종 판정은 아래 요약 단계가 정한다.
+      # githubToken 을 비워 'Test Results' 체크 항목이 따로 빨갛게 생기는 것을 막는다.
+      - name: EditMode 시험
+        id: tests
+        continue-on-error: true
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          projectPath: .
+          testMode: EditMode
+          artifactsPath: artifacts
+          githubToken: ''
+
+      - uses: actions/setup-dotnet@v4
+        if: always()
+        with:
+          dotnet-version: 8.0.x
+
+      # 최종 판정. 결과 XML 이 없거나(라이선스/컴파일 문제) 새 실패가 있으면 이 단계가 빨갛게 끝난다.
+      - name: 요약 리포트와 판정
+        if: always()
+        run: |
+          xml=$(find artifacts -name '*.xml' 2>/dev/null | head -n 1)
+          if [ -z "$xml" ]; then
+            echo "결과 XML 이 없다. 위 'EditMode 시험' 단계 로그를 확인하세요 (라이선스, 컴파일 오류 등)." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "결과 XML: $xml"
+          set +e
+          dotnet run --project _shared/Tools~/ReportCli -c Release -- \
+            --xml "$xml" \
+            --known Tools/known-defects.txt \
+            --spec FUNCTIONAL_SPEC.md \
+            --id-pattern 'FR-[A-Z]+-[0-9]{3}' \
+            --title "Hell's Kitchen 시험" \
+            --out report.md \
+            --fail-on-new
+          rc=$?
+          [ -f report.md ] && cat report.md >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
+
+      - name: 결과 파일 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editmode-results
+          path: |
+            artifacts
+            report.md
+          if-no-files-found: warn

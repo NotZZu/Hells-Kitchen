@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.shlee.testing-shared": {
+      "version": "https://github.com/NotZZu/Testing.Shared.git#v0.2.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.test-framework": "1.4.0"
+      },
+      "hash": "85588a0e3726947b076ee544fecc1bb749697440"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 1,
