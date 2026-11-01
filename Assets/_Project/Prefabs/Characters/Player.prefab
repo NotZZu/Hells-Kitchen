@@ -1,0 +1,296 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3644605407421443181
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8407879056204333875}
+  m_Layer: 0
+  m_Name: HoldAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8407879056204333875
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3644605407421443181}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.3157183, z: 0.93198276}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3710347107322984047}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7579725015442300825
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3710347107322984047}
+  - component: {fileID: 4648446106447818436}
+  - component: {fileID: 2996618624346225296}
+  - component: {fileID: 4857126890651931914}
+  - component: {fileID: 6505156882442959130}
+  - component: {fileID: 9147124115120320570}
+  - component: {fileID: 585837395015243508}
+  - component: {fileID: 2460830683847464393}
+  - component: {fileID: 6943268275364621228}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3710347107322984047
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 9216058350925164559}
+  - {fileID: 8407879056204333875}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &4648446106447818436
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2.1221263
+  m_Radius: 0.38198274
+  m_SlopeLimit: 60
+  m_StepOffset: 0.2
+  m_SkinWidth: 0.02
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.0610632, z: 0}
+--- !u!114 &2996618624346225296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ecdd03a868c2c40a1cce7945f8405b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HellsKitchen.Runtime::HellsKitchen.Runtime.Inputs.LocalIntentSource
+  _actions: {fileID: -944628639613478452, guid: 9f9adf3fc7d90b146ad1eec37364d645, type: 3}
+  _actionMapName: Player
+  _moveActionName: Move
+  _interactActionName: Interact
+  _workActionName: Work
+  _sprintActionName: Sprint
+  _dropActionName: Drop
+  _cancelActionName: Cancel
+--- !u!114 &4857126890651931914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f473cc9b810cd614ab53513ea5692971, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HellsKitchen.Runtime::HellsKitchen.Runtime.Player.PlayerCharacter
+  _walkSpeed: 4.2
+  _runSpeed: 8.5
+  _acceleration: 16
+  _deceleration: 22
+  _runDeceleration: 7
+  _steerSpeedWalk: 900
+  _steerSpeedRun: 300
+  _bodyTurnSpeed: 900
+  _gravity: -20
+  _cameraRelative: 1
+--- !u!114 &6505156882442959130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 921aceb3e2c9cd34d8934305833c0d19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HellsKitchen.Runtime::HellsKitchen.Runtime.Player.PlayerHands
+  _holdAnchor: {fileID: 8407879056204333875}
+--- !u!114 &9147124115120320570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 596aa9cce2854b242943eef84076d48a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HellsKitchen.Runtime::HellsKitchen.Runtime.Player.PlayerInteraction
+  _detectionOffset: 0.7
+  _detectionRadius: 1.4
+  _looseGrabRange: 1.2
+  _maxAngle: 110
+  _stationMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &585837395015243508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aed4eeeb3627e74eb072011173d8791, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HellsKitchen.Runtime::HellsKitchen.Runtime.Player.PlayerDropThrow
+  _chargeDelay: 0.22
+  _fullChargeSeconds: 0.9
+  _dropDistance: 0.95
+  _minThrowSpeed: 6
+  _maxThrowSpeed: 14
+  _throwAngle: 24
+--- !u!95 &2460830683847464393
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+  m_Controller: {fileID: 9100000, guid: dc602d84872181d4db3681f2feb09024, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6943268275364621228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7579725015442300825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 068e40bbfcbc1624a9baa647e020aba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HellsKitchen.Runtime::HellsKitchen.Runtime.Player.PlayerAnimatorDriver
+  _animator: {fileID: 2460830683847464393}
+  _character: {fileID: 4857126890651931914}
+  _hands: {fileID: 6505156882442959130}
+  _interaction: {fileID: 9147124115120320570}
+  _speedParameter: Speed
+  _carryingParameter: Carrying
+  _workingParameter: Working
+  _speedDamping: 0.1
+--- !u!1001 &8677518667607955428
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3710347107322984047}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+      propertyPath: m_Name
+      value: Model
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+--- !u!4 &9216058350925164559 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4750e74421a5b0b4ab7a17d3431a9ad7, type: 3}
+  m_PrefabInstance: {fileID: 8677518667607955428}
+  m_PrefabAsset: {fileID: 0}

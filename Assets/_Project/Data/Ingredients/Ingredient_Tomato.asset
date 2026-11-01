@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973eaaa8dae4e0c4cb50220e7a5a4694, type: 3}
+  m_Name: Ingredient_Tomato
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.IngredientDefinition
+  Type: 4
+  DisplayName: "\uD1A0\uB9C8\uD1A0"
+  Icon: {fileID: 21300000, guid: aee35b70ff868a848bab58ef22466d9d, type: 3}
+  RawModel: {fileID: 919132149155446097, guid: 7e66d5be34bb5b745b53be2f593e4ce4, type: 3}
+  ChoppingModel: {fileID: 919132149155446097, guid: 37512a3d2c4a58d4492359103423bdb4, type: 3}
+  ChoppedModel: {fileID: 919132149155446097, guid: d0a64d13c08eac84fa1474421d4aadc4, type: 3}
+  CookedModel: {fileID: 0}
+  BurnedModel: {fileID: 0}
+  DisplayScale: 1.5
+  PlateModel: {fileID: 0}
+  PlateTopperModel: {fileID: 0}
+  PlateSortOrder: 30
+  PlateStackHeight: 0.095
+  Choppable: 1
+  Cookable: 0
+  ChopResult: {fileID: 0}
+  ChopSeconds: 1.6
+  CookSeconds: 6
+  BurnSeconds: 6
+  GroundLifeSeconds: 20

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973eaaa8dae4e0c4cb50220e7a5a4694, type: 3}
+  m_Name: Ingredient_Cheese
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.IngredientDefinition
+  Type: 5
+  DisplayName: "\uCE58\uC988"
+  Icon: {fileID: 21300000, guid: 2fb02667b1881554c9e03551d0c102d4, type: 3}
+  RawModel: {fileID: 919132149155446097, guid: 23101a633954e114b9f3537076e5ad3f, type: 3}
+  ChoppingModel: {fileID: 919132149155446097, guid: 8730f2cd8d917a94c8b7a50575424e4e, type: 3}
+  ChoppedModel: {fileID: 919132149155446097, guid: 0221f997cc60c2c408973df02045a662, type: 3}
+  CookedModel: {fileID: 0}
+  BurnedModel: {fileID: 0}
+  DisplayScale: 1.5
+  PlateModel: {fileID: 0}
+  PlateTopperModel: {fileID: 0}
+  PlateSortOrder: 50
+  PlateStackHeight: 0.1
+  Choppable: 1
+  Cookable: 0
+  ChopResult: {fileID: 0}
+  ChopSeconds: 1.4
+  CookSeconds: 6
+  BurnSeconds: 6
+  GroundLifeSeconds: 20

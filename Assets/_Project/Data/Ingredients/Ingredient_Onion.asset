@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973eaaa8dae4e0c4cb50220e7a5a4694, type: 3}
+  m_Name: Ingredient_Onion
+  m_EditorClassIdentifier: HellsKitchen.Data::HellsKitchen.Data.IngredientDefinition
+  Type: 6
+  DisplayName: "\uC591\uD30C"
+  Icon: {fileID: 21300000, guid: 4561ad16650a16f4ba332dd5dc4e5f99, type: 3}
+  RawModel: {fileID: 919132149155446097, guid: c0956ce1a0e129947b5ead4ed2572339, type: 3}
+  ChoppingModel: {fileID: 919132149155446097, guid: 96b1b8930ed31604195f84726ab22c3d, type: 3}
+  ChoppedModel: {fileID: 919132149155446097, guid: 79a092d7fdcd11f48acc4c0a18e2abe2, type: 3}
+  CookedModel: {fileID: 0}
+  BurnedModel: {fileID: 0}
+  DisplayScale: 1.5
+  PlateModel: {fileID: 0}
+  PlateTopperModel: {fileID: 0}
+  PlateSortOrder: 40
+  PlateStackHeight: 0.1
+  Choppable: 1
+  Cookable: 0
+  ChopResult: {fileID: 0}
+  ChopSeconds: 1.7
+  CookSeconds: 6
+  BurnSeconds: 6
+  GroundLifeSeconds: 20

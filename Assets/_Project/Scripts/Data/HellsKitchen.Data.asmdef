@@ -1,0 +1,16 @@
+{
+    "name": "HellsKitchen.Data",
+    "rootNamespace": "HellsKitchen.Data",
+    "references": [
+        "HellsKitchen.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

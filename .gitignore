@@ -105,3 +105,24 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Testing.Shared 작업 중 생긴 임시 파일 (Test Runner 자동 실행 스크립트와 그 결과)
+/Assets/_TmpAutoTest~/
+/Tests/unity_results*.txt
+/Tests/unity_status*.txt
+/Tests/autorun.request
+
+# headless test output
+/TestResults/
+
+# 외부 아트 에셋 팩 (용량이 커서 저장소에 올리지 않는다. 시험 CI에는 필요 없다)
+/Assets/KayKit_*/
+/Assets/KayKit_*.meta
+/Assets/kenney_*/
+/Assets/kenney_*.meta
+/Assets/TextMesh Pro/
+/Assets/TextMesh Pro.meta
+
+# 패키지 연결 방식 바꿀 때 만든 백업, 작업용 폴더
+/Packages/manifest.json.bak_*
+/Claude outputs/
