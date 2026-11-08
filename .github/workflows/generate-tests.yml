@@ -4,18 +4,72 @@ name: Generate tests (LLM)
 # PR 은 비교 실험용이다. 통째로 병합하지 않고, 통과율과 요약을 보고 판단한다.
 #
 # 필요한 시크릿 (Settings > Secrets and variables > Actions)
-#   ANTHROPIC_API_KEY, GEMINI_API_KEY, DEEPSEEK_API_KEY : 쓰려는 프로필의 키만 있으면 된다
+#   ANTHROPIC_API_KEY, GEMINI_API_KEY, DEEPSEEK_API_KEY : 쓰려는 회사의 키만 있으면 된다
 #   SHARED_REPO_TOKEN : 비공개 저장소 NotZZu/Testing.Shared 읽기 전용 토큰(ci.yml 과 같은 것)
+# 실행 화면에서는 회사를 먼저 고르고, 그 회사의 모델 칸에서 모델을 고른다. GitHub 는 선택에 따라 목록이 바뀌는
+# 연동 드롭다운을 지원하지 않아서 회사별 모델 칸을 따로 두었다. 고른 회사의 칸만 쓰인다.
 # 로컬 모델(local 프로필)은 runner 입력에 self-hosted 실행기 라벨을 주어, LLM 이 도는 PC 에서 실행한다.
 #   주소와 모델 이름은 Tools/generator/models.json 의 local 프로필에서 고친다.
+
+run-name: >-
+  생성 ${{ inputs.provider == 'anthropic' && inputs.anthropic_model || inputs.provider == 'google' && inputs.google_model || inputs.provider == 'deepseek' && inputs.deepseek_model || 'local' }}
 
 on:
   workflow_dispatch:
     inputs:
-      profile:
-        description: 'Tools/generator/models.json 의 프로필 이름'
+      provider:
+        description: '1. 회사를 고른다 (고른 회사의 모델 칸만 쓰이고 나머지 모델 칸은 무시된다)'
+        type: choice
         required: true
-        default: haiku
+        default: anthropic
+        options:
+          - anthropic
+          - google
+          - deepseek
+          - local
+      anthropic_model:
+        description: '2-a. Anthropic 모델 (회사가 anthropic 일 때)'
+        type: choice
+        default: claude-haiku-5-5
+        options:
+          - claude-fable-5-1
+          - claude-mythos-5-1
+          - claude-fable-5
+          - claude-mythos-5
+          - claude-opus-5-5
+          - claude-opus-5
+          - claude-opus-4-8
+          - claude-opus-4-7
+          - claude-opus-4-6
+          - claude-opus-4-5-20251101
+          - claude-sonnet-5-5
+          - claude-sonnet-5
+          - claude-sonnet-4-6
+          - claude-haiku-5-5
+          - claude-haiku-4-5-20251001
+      google_model:
+        description: '2-b. Google 모델 (회사가 google 일 때)'
+        type: choice
+        default: gemini-3.1-flash-lite
+        options:
+          - gemini-4-argon
+          - gemini-3.8-flash
+          - gemini-3.6-flash
+          - gemini-3.5-flash
+          - gemini-3.5-flash-lite
+          - gemini-3.1-flash-lite
+          - gemini-3.1-pro-preview
+          - gemini-3-flash-preview
+          - gemini-2.5-pro
+          - gemini-2.5-flash
+          - gemini-2.5-flash-lite
+      deepseek_model:
+        description: '2-c. DeepSeek 모델 (회사가 deepseek 일 때)'
+        type: choice
+        default: deepseek-flash
+        options:
+          - deepseek-flash
+          - deepseek-v4-pro
       reqs:
         description: '요구사항 ID(쉼표로 구분). 비우면 파일럿 6건'
         required: false
@@ -29,6 +83,10 @@ on:
         description: '이 실행의 예산 상한(원). 넘길 것 같으면 호출 전에 멈춘다'
         required: true
         default: '500'
+      allow_unpriced:
+        description: '단가가 등록되지 않은 모델을 감수하고 쓴다 (이 모델은 예산 상한이 듣지 않는다)'
+        type: boolean
+        default: false
       shared_ref:
         description: 'Testing.Shared 에서 받을 브랜치 또는 태그'
         required: true
@@ -49,12 +107,16 @@ permissions:
 
 jobs:
   generate:
-    name: 생성 (${{ inputs.profile }})
+    name: 생성 (${{ inputs.provider == 'anthropic' && inputs.anthropic_model || inputs.provider == 'google' && inputs.google_model || inputs.provider == 'deepseek' && inputs.deepseek_model || 'local' }})
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 60
     env:
       # 입력값은 환경 변수로만 쓰고, 명령 문자열에 직접 끼워 넣지 않는다.
-      PROFILE: ${{ inputs.profile }}
+      PROVIDER: ${{ inputs.provider }}
+      ANTHROPIC_MODEL: ${{ inputs.anthropic_model }}
+      GOOGLE_MODEL: ${{ inputs.google_model }}
+      DEEPSEEK_MODEL: ${{ inputs.deepseek_model }}
+      ALLOW_UNPRICED: ${{ inputs.allow_unpriced }}
       REQS: ${{ inputs.reqs }}
       GRANULARITY: ${{ inputs.granularity }}
       BUDGET_KRW: ${{ inputs.budget_krw }}
@@ -62,13 +124,24 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
     steps:
-      - name: 입력 확인
+      - uses: actions/checkout@v4
+
+      - name: 모델 정하기와 입력 확인
         run: |
-          [[ "$PROFILE" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::프로필 이름 형식이 올바르지 않다"; exit 1; }
+          case "$PROVIDER" in
+            anthropic) PROFILE="$ANTHROPIC_MODEL" ;;
+            google)    PROFILE="$GOOGLE_MODEL" ;;
+            deepseek)  PROFILE="$DEEPSEEK_MODEL" ;;
+            local)     PROFILE="local" ;;
+            *) echo "::error::알 수 없는 회사: $PROVIDER"; exit 1 ;;
+          esac
+          [[ "$PROFILE" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::모델 이름 형식이 올바르지 않다"; exit 1; }
           [[ "$BUDGET_KRW" =~ ^[0-9]+$ ]] || { echo "::error::예산은 숫자(원)여야 한다"; exit 1; }
           [[ -z "$REQS" || "$REQS" =~ ^[A-Z0-9,-]+$ ]] || { echo "::error::요구사항 ID 형식이 올바르지 않다"; exit 1; }
-
-      - uses: actions/checkout@v4
+          jq -e --arg p "$PROFILE" '.profiles[$p]' Tools/generator/models.json > /dev/null \
+            || { echo "::error::models.json 에 없는 모델이다: $PROFILE"; exit 1; }
+          echo "PROFILE=$PROFILE" >> "$GITHUB_ENV"
+          echo "선택: 회사=$PROVIDER, 모델=$PROFILE"
 
       - name: Testing.Shared 받기 (비공개 저장소)
         uses: actions/checkout@v4
@@ -100,6 +173,7 @@ jobs:
         run: |
           args=(generate --models Tools/generator/models.json --data Tools/generator --profile "$PROFILE"
                 --granularity "$GRANULARITY" --budget-krw "$BUDGET_KRW" --out gen_out)
+          [ "$ALLOW_UNPRICED" = "true" ] && args+=(--allow-unpriced true)
           [ -n "$REQS" ] && args+=(--reqs "$REQS")
           dotnet _cli/Testing.Shared.Generator.Cli.dll "${args[@]}"
 
@@ -113,7 +187,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gen-${{ inputs.profile }}-${{ github.run_number }}
+          name: gen-${{ env.PROFILE }}-${{ github.run_number }}-${{ github.run_attempt }}
           path: gen_out
           if-no-files-found: warn
 
@@ -127,7 +201,8 @@ jobs:
           cs=$(ls "gen_out/$PROFILE"/GeneratedTests_*.cs 2>/dev/null | head -n 1)
           if [ -z "$cs" ]; then echo "생성된 시험 코드가 없어 PR 을 만들지 않는다."; exit 0; fi
 
-          branch="gen/${PROFILE}-${{ github.run_number }}"
+          # 같은 실행을 다시 돌리면(Re-run) 실행 번호가 같아서 브랜치 이름이 겹치므로 시도 번호도 붙인다.
+          branch="gen/${PROFILE}-${{ github.run_number }}-${{ github.run_attempt }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
@@ -137,7 +212,12 @@ jobs:
           git commit -m "test(generated): $PROFILE 모델이 만든 시험 (실행 ${{ github.run_number }})"
           git push origin "$branch"
 
-          gh pr create --base main --head "$branch" \
-            --title "생성 시험 비교: $PROFILE (실행 ${{ github.run_number }})" \
-            --body-file "gen_out/$PROFILE/summary.md"
+          # 저장소 설정(Settings > Actions > General > Workflow permissions 의 PR 생성 허용)이 꺼져 있으면
+          # PR 만 못 만든다. 브랜치는 이미 올라갔으므로 경고만 남기고 CI 실행은 계속한다.
+          if ! gh pr create --base main --head "$branch" \
+                --title "생성 시험 비교: $PROFILE (실행 ${{ github.run_number }})" \
+                --body-file "gen_out/$PROFILE/summary.md"; then
+            echo "::warning::PR 을 만들지 못했다. 브랜치 $branch 는 올라가 있으니 직접 PR 을 만들거나, 저장소 설정에서 Actions 의 PR 생성을 허용한다."
+            echo "PR 생성 실패: 브랜치 \`$branch\` 는 올라가 있다. 저장소 설정에서 Actions 의 PR 생성을 허용하면 다음부터 자동으로 만든다." >> "$GITHUB_STEP_SUMMARY"
+          fi
           gh workflow run ci.yml --ref "$branch"
