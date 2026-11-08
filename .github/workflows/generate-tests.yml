@@ -1,15 +1,8 @@
 name: Generate tests (LLM)
 
-# 모델 하나로 요구사항별 시험 코드를 생성하고, 결과를 브랜치와 PR 로 올린다. 수동 실행 전용.
-# PR 은 비교 실험용이다. 통째로 병합하지 않고, 통과율과 요약을 보고 판단한다.
-#
-# 필요한 시크릿 (Settings > Secrets and variables > Actions)
-#   ANTHROPIC_API_KEY, GEMINI_API_KEY, DEEPSEEK_API_KEY : 쓰려는 회사의 키만 있으면 된다
-#   SHARED_REPO_TOKEN : 비공개 저장소 NotZZu/Testing.Shared 읽기 전용 토큰(ci.yml 과 같은 것)
-# 실행 화면에서는 회사를 먼저 고르고, 그 회사의 모델 칸에서 모델을 고른다. GitHub 는 선택에 따라 목록이 바뀌는
-# 연동 드롭다운을 지원하지 않아서 회사별 모델 칸을 따로 두었다. 고른 회사의 칸만 쓰인다.
-# 로컬 모델(local 프로필)은 runner 입력에 self-hosted 실행기 라벨을 주어, LLM 이 도는 PC 에서 실행한다.
-#   주소와 모델 이름은 Tools/generator/models.json 의 local 프로필에서 고친다.
+# 요구사항별 시험 코드 생성. 수동 실행 전용.
+# 시크릿: ANTHROPIC_API_KEY, GEMINI_API_KEY, DEEPSEEK_API_KEY, SHARED_REPO_TOKEN
+# 로컬 모델은 runner에 self-hosted 라벨을 지정. 주소와 모델 이름은 Tools/generator/models.json의 local 항목.
 
 run-name: >-
   생성 ${{ inputs.provider == 'anthropic' && inputs.anthropic_model || inputs.provider == 'google' && inputs.google_model || inputs.provider == 'deepseek' && inputs.deepseek_model || 'local' }}
@@ -18,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       provider:
-        description: '1. 회사를 고른다 (고른 회사의 모델 칸만 쓰이고 나머지 모델 칸은 무시된다)'
+        description: '회사 선택'
         type: choice
         required: true
         default: anthropic
@@ -28,7 +21,7 @@ on:
           - deepseek
           - local
       anthropic_model:
-        description: '2-a. Anthropic 모델 (회사가 anthropic 일 때)'
+        description: 'Anthropic 모델'
         type: choice
         default: claude-haiku-5-5
         options:
@@ -48,7 +41,7 @@ on:
           - claude-haiku-5-5
           - claude-haiku-4-5-20251001
       google_model:
-        description: '2-b. Google 모델 (회사가 google 일 때)'
+        description: 'Google 모델'
         type: choice
         default: gemini-3.1-flash-lite
         options:
@@ -64,39 +57,33 @@ on:
           - gemini-2.5-flash
           - gemini-2.5-flash-lite
       deepseek_model:
-        description: '2-c. DeepSeek 모델 (회사가 deepseek 일 때)'
+        description: 'DeepSeek 모델'
         type: choice
         default: deepseek-flash
         options:
           - deepseek-flash
           - deepseek-v4-pro
       reqs:
-        description: '요구사항 ID(쉼표로 구분). 비우면 파일럿 6건'
-        required: false
-        default: ''
+        description: '요구사항 ID  FR-FRESH-001,FR-DROP-017'
+        required: true
       granularity:
-        description: '모델을 한 번 부를 때 담는 요구사항 단위'
+        description: '호출 단위'
         type: choice
-        options: [requirement, module, all]
-        default: requirement
+        options:
+          - 요구사항별
+          - 모듈별
+          - 전체 한 번에
+        default: 요구사항별
       budget_krw:
-        description: '이 실행의 예산 상한(원). 넘길 것 같으면 호출 전에 멈춘다'
+        description: '예산 상한 ₩'
         required: true
         default: '500'
       allow_unpriced:
-        description: '단가가 등록되지 않은 모델을 감수하고 쓴다 (이 모델은 예산 상한이 듣지 않는다)'
+        description: '단가 없는 모델 허용'
         type: boolean
         default: false
-      shared_ref:
-        description: 'Testing.Shared 에서 받을 브랜치 또는 태그'
-        required: true
-        default: main
-      runner:
-        description: '실행기 라벨(ubuntu-latest 또는 로컬 모델용 self-hosted 라벨)'
-        required: true
-        default: ubuntu-latest
       open_pr:
-        description: '결과를 브랜치와 PR 로 올리고 EditMode 시험도 돌린다'
+        description: 'PR 생성'
         type: boolean
         default: true
 
@@ -107,11 +94,11 @@ permissions:
 
 jobs:
   generate:
-    name: 생성 (${{ inputs.provider == 'anthropic' && inputs.anthropic_model || inputs.provider == 'google' && inputs.google_model || inputs.provider == 'deepseek' && inputs.deepseek_model || 'local' }})
-    runs-on: ${{ inputs.runner }}
+    name: 생성 ${{ inputs.provider == 'anthropic' && inputs.anthropic_model || inputs.provider == 'google' && inputs.google_model || inputs.provider == 'deepseek' && inputs.deepseek_model || 'local' }}
+    runs-on: ${{ inputs.provider == 'local' && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 60
     env:
-      # 입력값은 환경 변수로만 쓰고, 명령 문자열에 직접 끼워 넣지 않는다.
+      # 입력값은 환경 변수로만 사용
       PROVIDER: ${{ inputs.provider }}
       ANTHROPIC_MODEL: ${{ inputs.anthropic_model }}
       GOOGLE_MODEL: ${{ inputs.google_model }}
@@ -126,7 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 모델 정하기와 입력 확인
+      - name: 입력 확인
         run: |
           case "$PROVIDER" in
             anthropic) PROFILE="$ANTHROPIC_MODEL" ;;
@@ -135,19 +122,26 @@ jobs:
             local)     PROFILE="local" ;;
             *) echo "::error::알 수 없는 회사: $PROVIDER"; exit 1 ;;
           esac
-          [[ "$PROFILE" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::모델 이름 형식이 올바르지 않다"; exit 1; }
-          [[ "$BUDGET_KRW" =~ ^[0-9]+$ ]] || { echo "::error::예산은 숫자(원)여야 한다"; exit 1; }
-          [[ -z "$REQS" || "$REQS" =~ ^[A-Z0-9,-]+$ ]] || { echo "::error::요구사항 ID 형식이 올바르지 않다"; exit 1; }
+          [[ "$PROFILE" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::모델 이름 형식 오류"; exit 1; }
+          [[ "$BUDGET_KRW" =~ ^[0-9]+$ ]] || { echo "::error::예산은 숫자만 가능"; exit 1; }
+          [[ "$REQS" =~ ^[A-Z0-9,-]+$ ]] || { echo "::error::요구사항 ID 형식 오류"; exit 1; }
           jq -e --arg p "$PROFILE" '.profiles[$p]' Tools/generator/models.json > /dev/null \
-            || { echo "::error::models.json 에 없는 모델이다: $PROFILE"; exit 1; }
+            || { echo "::error::models.json에 없는 모델: $PROFILE"; exit 1; }
+          case "$GRANULARITY" in
+            "요구사항별")   GRAN=requirement ;;
+            "모듈별")       GRAN=module ;;
+            "전체 한 번에") GRAN=all ;;
+            *) echo "::error::호출 단위 오류: $GRANULARITY"; exit 1 ;;
+          esac
           echo "PROFILE=$PROFILE" >> "$GITHUB_ENV"
-          echo "선택: 회사=$PROVIDER, 모델=$PROFILE"
+          echo "GRAN=$GRAN" >> "$GITHUB_ENV"
+          echo "선택: 회사 $PROVIDER, 모델 $PROFILE"
 
-      - name: Testing.Shared 받기 (비공개 저장소)
+      - name: Testing.Shared 받기
         uses: actions/checkout@v4
         with:
           repository: NotZZu/Testing.Shared
-          ref: ${{ inputs.shared_ref }}
+          ref: main
           token: ${{ secrets.SHARED_REPO_TOKEN }}
           path: _shared
           persist-credentials: false
@@ -159,29 +153,27 @@ jobs:
       - name: 생성기 빌드
         run: dotnet build "_shared/Tools~/GeneratorCli" -c Release -o _cli
 
-      # 키 값은 출력하지 않는다. 있는지 없는지와 연결 결과만 보인다.
-      - name: 연결 확인 (doctor)
+      - name: 연결 확인
         run: dotnet _cli/Testing.Shared.Generator.Cli.dll doctor --models Tools/generator/models.json --profile "$PROFILE"
 
-      - name: 예상 비용 (estimate)
+      - name: 예상 비용
         run: |
-          args=(estimate --models Tools/generator/models.json --data Tools/generator --profile "$PROFILE")
-          [ -n "$REQS" ] && args+=(--reqs "$REQS")
+          args=(estimate --models Tools/generator/models.json --data Tools/generator --profile "$PROFILE" --reqs "$REQS")
           dotnet _cli/Testing.Shared.Generator.Cli.dll "${args[@]}"
 
-      - name: 생성 (generate)
+      - name: 시험 코드 생성
         run: |
           args=(generate --models Tools/generator/models.json --data Tools/generator --profile "$PROFILE"
-                --granularity "$GRANULARITY" --budget-krw "$BUDGET_KRW" --out gen_out)
+                --granularity "$GRAN" --budget-krw "$BUDGET_KRW" --out gen_out)
           [ "$ALLOW_UNPRICED" = "true" ] && args+=(--allow-unpriced true)
-          [ -n "$REQS" ] && args+=(--reqs "$REQS")
+          args+=(--reqs "$REQS")
           dotnet _cli/Testing.Shared.Generator.Cli.dll "${args[@]}"
 
       - name: 요약 표시
         if: always()
         run: |
           f="gen_out/$PROFILE/summary.md"
-          [ -f "$f" ] && cat "$f" >> "$GITHUB_STEP_SUMMARY" || echo "요약 파일이 없다(생성 전에 실패)." >> "$GITHUB_STEP_SUMMARY"
+          [ -f "$f" ] && cat "$f" >> "$GITHUB_STEP_SUMMARY" || echo "요약 파일 없음. 생성 전에 실패." >> "$GITHUB_STEP_SUMMARY"
 
       - name: 결과 보관
         if: always()
@@ -191,17 +183,16 @@ jobs:
           path: gen_out
           if-no-files-found: warn
 
-      # 같은 저장소의 push 로 시작된 CI 는 GITHUB_TOKEN 으로는 자동 시작되지 않으므로,
-      # 브랜치를 올린 뒤 ci.yml 을 직접 실행시켜 생성된 시험의 통과율을 본다.
-      - name: 브랜치, PR, EditMode 시험
+      # GITHUB_TOKEN으로 올린 브랜치는 CI가 자동 시작되지 않아 ci.yml을 직접 실행
+      - name: 브랜치와 PR 생성
         if: ${{ inputs.open_pr }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cs=$(ls "gen_out/$PROFILE"/GeneratedTests_*.cs 2>/dev/null | head -n 1)
-          if [ -z "$cs" ]; then echo "생성된 시험 코드가 없어 PR 을 만들지 않는다."; exit 0; fi
+          if [ -z "$cs" ]; then echo "생성된 시험 코드 없음. PR 생략."; exit 0; fi
 
-          # 같은 실행을 다시 돌리면(Re-run) 실행 번호가 같아서 브랜치 이름이 겹치므로 시도 번호도 붙인다.
+          # Re-run은 실행 번호가 같아서 시도 번호를 함께 붙임
           branch="gen/${PROFILE}-${{ github.run_number }}-${{ github.run_attempt }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -209,15 +200,14 @@ jobs:
           mkdir -p Assets/_Project/Tests/Generated
           cp "$cs" Assets/_Project/Tests/Generated/
           git add Assets/_Project/Tests/Generated
-          git commit -m "test(generated): $PROFILE 모델이 만든 시험 (실행 ${{ github.run_number }})"
+          git commit -m "test(generated): $PROFILE 생성 시험 ${{ github.run_number }}회차"
           git push origin "$branch"
 
-          # 저장소 설정(Settings > Actions > General > Workflow permissions 의 PR 생성 허용)이 꺼져 있으면
-          # PR 만 못 만든다. 브랜치는 이미 올라갔으므로 경고만 남기고 CI 실행은 계속한다.
+          # PR 생성 권한이 꺼져 있어도 브랜치는 올라가 있으므로 경고만 남기고 계속
           if ! gh pr create --base main --head "$branch" \
-                --title "생성 시험 비교: $PROFILE (실행 ${{ github.run_number }})" \
+                --title "$PROFILE 생성 시험 비교 ${{ github.run_number }}회차" \
                 --body-file "gen_out/$PROFILE/summary.md"; then
-            echo "::warning::PR 을 만들지 못했다. 브랜치 $branch 는 올라가 있으니 직접 PR 을 만들거나, 저장소 설정에서 Actions 의 PR 생성을 허용한다."
-            echo "PR 생성 실패: 브랜치 \`$branch\` 는 올라가 있다. 저장소 설정에서 Actions 의 PR 생성을 허용하면 다음부터 자동으로 만든다." >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::PR 생성 실패. 브랜치 $branch는 올라가 있음. 저장소 설정에서 Actions의 PR 생성 허용 필요."
+            echo "PR 생성 실패. 브랜치 \`$branch\`는 올라가 있음. 저장소 설정에서 Actions의 PR 생성을 허용하면 자동 생성됨." >> "$GITHUB_STEP_SUMMARY"
           fi
           gh workflow run ci.yml --ref "$branch"
