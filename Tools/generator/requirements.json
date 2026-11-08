@@ -1,0 +1,822 @@
+{
+  "source": "FUNCTIONAL_SPEC.md",
+  "count": 95,
+  "requirements": [
+    {
+      "id": "FR-MOVE-001",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "걷기",
+      "precondition": "라운드 진행 중",
+      "input": "WASD / 방향키 / 좌스틱",
+      "process": "카메라 기준 방향으로 가속",
+      "expected": "최대 4.2 m/s 로 이동"
+    },
+    {
+      "id": "FR-MOVE-002",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "달리기",
+      "precondition": "이동 입력이 있음",
+      "input": "Shift 유지",
+      "process": "목표 속도를 8.5 m/s 로 상향",
+      "expected": "가속 후 최대 8.5 m/s"
+    },
+    {
+      "id": "FR-MOVE-003",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "가속",
+      "precondition": "—",
+      "input": "이동 입력 시작",
+      "process": "초당 16 m/s² 로 목표 속도에 접근",
+      "expected": "정지→최고속까지 즉시 도달하지 않음"
+    },
+    {
+      "id": "FR-MOVE-004",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "관성(걷기)",
+      "precondition": "걷는 중",
+      "input": "이동 입력 해제",
+      "process": "초당 22 m/s² 로 감속",
+      "expected": "약 0.2초 내 정지"
+    },
+    {
+      "id": "FR-MOVE-005",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "관성(달리기)",
+      "precondition": "속도 > 4.41 m/s",
+      "input": "이동 입력 해제",
+      "process": "초당 7 m/s² 로 감속",
+      "expected": "약 1.2초간 미끄러짐"
+    },
+    {
+      "id": "FR-MOVE-006",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "곡선 조향",
+      "precondition": "이동 중",
+      "input": "진행 방향과 다른 입력",
+      "process": "**속력은 유지한 채** 진행 방향만 회전",
+      "expected": "감속 없이 호를 그리며 선회"
+    },
+    {
+      "id": "FR-MOVE-007",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "조향 속도",
+      "precondition": "이동 중",
+      "input": "—",
+      "process": "속력에 따라 900°/s(걷기) ~ 300°/s(달리기) 보간",
+      "expected": "빠를수록 선회 반경이 커짐"
+    },
+    {
+      "id": "FR-MOVE-010",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "몸 방향",
+      "precondition": "이동 중",
+      "input": "—",
+      "process": "몸이 진행 방향을 900°/s 로 따라감",
+      "expected": "진행 방향과 시선이 일치"
+    },
+    {
+      "id": "FR-MOVE-008",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "정지 시 회전 없음",
+      "precondition": "속도 ≤ 0.1 m/s",
+      "input": "이동 입력 없음",
+      "process": "회전 갱신 생략",
+      "expected": "제자리에서 돌지 않음"
+    },
+    {
+      "id": "FR-MOVE-009",
+      "module": "MOVE",
+      "section": "3.1",
+      "name": "경계 제한",
+      "precondition": "—",
+      "input": "주방 밖으로 이동 시도",
+      "process": "경계 콜라이더가 차단",
+      "expected": "주방 밖으로 나갈 수 없음"
+    },
+    {
+      "id": "FR-INT-001",
+      "module": "INT",
+      "section": "3.2",
+      "name": "대상 강조",
+      "precondition": "탐지 범위 안에 설비 존재",
+      "input": "—",
+      "expected": "설비 발치에 노란 링 표시"
+    },
+    {
+      "id": "FR-INT-002",
+      "module": "INT",
+      "section": "3.2",
+      "name": "바닥 물건 줍기",
+      "precondition": "빈손 + 범위 안 느슨한 물건",
+      "input": "E",
+      "expected": "물건을 손에 든다. **설비보다 우선**"
+    },
+    {
+      "id": "FR-INT-009",
+      "module": "INT",
+      "section": "3.2",
+      "name": "근접 줍기",
+      "precondition": "바닥 물건이 1.2m 이내",
+      "input": "E",
+      "expected": "**정면이 아니어도** 주울 수 있음"
+    },
+    {
+      "id": "FR-INT-003",
+      "module": "INT",
+      "section": "3.2",
+      "name": "설비에서 집기",
+      "precondition": "빈손 + 설비에 물건 있음",
+      "input": "E",
+      "expected": "물건을 손에 든다"
+    },
+    {
+      "id": "FR-INT-004",
+      "module": "INT",
+      "section": "3.2",
+      "name": "설비에 놓기",
+      "precondition": "물건 소지 + 빈 설비",
+      "input": "E",
+      "expected": "설비에 놓이고 손이 빈다"
+    },
+    {
+      "id": "FR-INT-005",
+      "module": "INT",
+      "section": "3.2",
+      "name": "접시에 담기",
+      "precondition": "재료 소지 + 접시가 놓인 설비",
+      "input": "E",
+      "expected": "재료가 접시로 이동, 손이 빈다"
+    },
+    {
+      "id": "FR-INT-006",
+      "module": "INT",
+      "section": "3.2",
+      "name": "접시로 회수",
+      "precondition": "접시 소지 + 재료가 놓인 설비",
+      "input": "E",
+      "expected": "재료가 접시로 이동, **접시는 손에 남음**"
+    },
+    {
+      "id": "FR-INT-007",
+      "module": "INT",
+      "section": "3.2",
+      "name": "한 손 제한",
+      "precondition": "물건 소지 중",
+      "input": "—",
+      "expected": "두 번째 물건을 들 수 없음"
+    },
+    {
+      "id": "FR-INT-008",
+      "module": "INT",
+      "section": "3.2",
+      "name": "거부 시 무변화",
+      "precondition": "설비가 받을 수 없는 물건",
+      "input": "E",
+      "expected": "손과 설비 모두 상태 불변"
+    },
+    {
+      "id": "FR-DROP-001",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "내려놓기",
+      "precondition": "물건 소지",
+      "input": "Q 를 0.22초 **미만** 누르고 뗌",
+      "expected": "캐릭터 정면 0.95m 바닥에 놓임"
+    },
+    {
+      "id": "FR-DROP-002",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "차징 시작",
+      "precondition": "물건 소지",
+      "input": "Q 를 0.22초 **이상** 유지",
+      "expected": "화면 하단 게이지 표시 시작"
+    },
+    {
+      "id": "FR-DROP-003",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "게이지 충전",
+      "precondition": "차징 중",
+      "input": "Q 유지",
+      "expected": "0.9초에 걸쳐 0→1 충전, 색이 노랑→주황"
+    },
+    {
+      "id": "FR-DROP-004",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "던지기",
+      "precondition": "차징 중",
+      "input": "Q 해제",
+      "expected": "정면 위 24° 방향으로 6~14 m/s 로 발사"
+    },
+    {
+      "id": "FR-DROP-005",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "설비 적재",
+      "precondition": "비행 중",
+      "input": "설비 0.55m 이내 통과",
+      "expected": "해당 설비 규칙에 따라 적재 시도, 성공 시 비행 종료"
+    },
+    {
+      "id": "FR-DROP-006",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "접시 적재",
+      "precondition": "비행 중",
+      "input": "접시가 놓인 조리대에 도달",
+      "expected": "재료가 접시에 담김"
+    },
+    {
+      "id": "FR-DROP-007",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "적재 거부",
+      "precondition": "비행 중",
+      "input": "받을 수 없는 설비 통과",
+      "expected": "적재되지 않고 비행 계속"
+    },
+    {
+      "id": "FR-DROP-008",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "바닥 착지",
+      "precondition": "비행 중",
+      "input": "y ≤ 0 도달",
+      "expected": "바닥에 놓이고 주울 수 있는 상태가 됨"
+    },
+    {
+      "id": "FR-DROP-009",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "비행 시간 제한",
+      "precondition": "비행 중",
+      "input": "4초 경과",
+      "expected": "현재 위치 바닥으로 낙하"
+    },
+    {
+      "id": "FR-DROP-010",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "빈손 무동작",
+      "precondition": "빈손",
+      "input": "Q",
+      "expected": "아무 일도 일어나지 않음, 게이지 미표시"
+    },
+    {
+      "id": "FR-DROP-011",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "차징 취소",
+      "precondition": "차징 중",
+      "input": "F / ESC",
+      "expected": "게이지 초기화, **물건은 손에 남음**"
+    },
+    {
+      "id": "FR-DROP-012",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "취소 후 잠금",
+      "precondition": "취소 직후 Q 유지 중",
+      "input": "Q 해제",
+      "expected": "던지지 않음. 다시 누를 때까지 대기"
+    },
+    {
+      "id": "FR-DROP-013",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "유도",
+      "precondition": "비행 중",
+      "input": "반경 **2.2m** 안에 선호 설비",
+      "expected": "궤도가 그 설비 쪽으로 휨"
+    },
+    {
+      "id": "FR-DROP-014",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "유도 강도",
+      "precondition": "비행 중",
+      "input": "끌림 값 > 1",
+      "expected": "(끌림−1) × 11 × **근접도²** × Δt 비율로 보정"
+    },
+    {
+      "id": "FR-DROP-015",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "적재 반경 확대",
+      "precondition": "비행 중",
+      "input": "끌림 값이 큼",
+      "expected": "착지 판정 반경이 최대 **1.65배**(≈1.16m)까지 확대"
+    },
+    {
+      "id": "FR-DROP-016",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "원거리 무유도",
+      "precondition": "비행 중",
+      "input": "설비까지 2.2m 초과",
+      "expected": "유도 없음. 던진 방향 그대로"
+    },
+    {
+      "id": "FR-DROP-017",
+      "module": "DROP",
+      "section": "3.3",
+      "name": "수직 오차 허용",
+      "precondition": "비행 중",
+      "input": "설비와 높이가 어긋남",
+      "expected": "거리 계산에서 높이 차이를 **0.45배**로 셈"
+    },
+    {
+      "id": "FR-COOK-001",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "도마 적재",
+      "precondition": "손질 가능 + Raw 상태 재료",
+      "input": "E",
+      "expected": "도마에 놓임"
+    },
+    {
+      "id": "FR-COOK-002",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "도마 거부",
+      "precondition": "손질 불가 또는 Raw 아님",
+      "input": "E",
+      "expected": "놓이지 않음"
+    },
+    {
+      "id": "FR-COOK-003",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 진행",
+      "precondition": "도마에 대상 재료",
+      "input": "Space 유지",
+      "expected": "진행도가 `Δt / 손질시간` 만큼 누적"
+    },
+    {
+      "id": "FR-COOK-004",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 중단",
+      "precondition": "손질 중",
+      "input": "Space 해제",
+      "expected": "진행도가 **그 자리에 유지**됨 (0으로 초기화되지 않음)"
+    },
+    {
+      "id": "FR-COOK-005",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 이어하기",
+      "precondition": "진행도 > 0 인 재료",
+      "input": "다른 도마에 올리고 Space",
+      "expected": "남은 진행도부터 이어짐"
+    },
+    {
+      "id": "FR-COOK-006",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 완료(상태 변화)",
+      "precondition": "진행도 1 도달, ChopResult 없음",
+      "input": "—",
+      "expected": "같은 재료의 Chopped 상태가 됨"
+    },
+    {
+      "id": "FR-COOK-007",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 완료(재료 변환)",
+      "precondition": "진행도 1 도달, ChopResult 있음",
+      "input": "—",
+      "expected": "**다른 재료의 Raw 상태**가 됨 (고기→패티)"
+    },
+    {
+      "id": "FR-COOK-008",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "화로 적재",
+      "precondition": "조리 가능 + Raw 상태",
+      "input": "E",
+      "expected": "화로에 놓임"
+    },
+    {
+      "id": "FR-COOK-009",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "자동 조리",
+      "precondition": "화로에 재료",
+      "input": "입력 불필요",
+      "expected": "시간 경과로 진행, 완료 시 Cooked"
+    },
+    {
+      "id": "FR-COOK-010",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "태움",
+      "precondition": "Cooked 상태로 화로에 방치",
+      "input": "입력 불필요",
+      "expected": "태움 시간 경과 후 Burned"
+    },
+    {
+      "id": "FR-COOK-011",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "태움 경고",
+      "precondition": "Cooked 상태",
+      "input": "—",
+      "expected": "진행바가 빨간색으로 역방향 감소"
+    },
+    {
+      "id": "FR-COOK-012",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "탄 재료 불가역",
+      "precondition": "Burned 상태",
+      "input": "어떤 조작도",
+      "expected": "상태 변화 없음. 쓰레기통 외 용도 없음"
+    },
+    {
+      "id": "FR-COOK-013",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "쓰레기 처리",
+      "precondition": "재료 소지",
+      "input": "쓰레기통에 E",
+      "expected": "재료 소멸, 손이 빔"
+    },
+    {
+      "id": "FR-COOK-015",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 중 외형",
+      "precondition": "진행도 0 → 0 초과 전이",
+      "input": "Space",
+      "expected": "모델이 **손질 중 형태**(흩어진 조각)로 교체"
+    },
+    {
+      "id": "FR-COOK-016",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "손질 완료 외형",
+      "precondition": "진행도 1 도달",
+      "input": "—",
+      "expected": "모델이 **완성 형태**(슬라이스·링)로 교체"
+    },
+    {
+      "id": "FR-COOK-017",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "진행도 소실 시 복귀",
+      "precondition": "진행도 > 0 인 재료의 진행도 초기화",
+      "input": "—",
+      "expected": "손질 전 형태로 되돌아감"
+    },
+    {
+      "id": "FR-COOK-018",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "작업 종료",
+      "precondition": "손질 완료 후에도 Space 유지",
+      "input": "—",
+      "expected": "**칼질 동작이 멈춤**. 설비가 \"할 일 없음\"을 알림"
+    },
+    {
+      "id": "FR-COOK-019",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "대상 없음",
+      "precondition": "빈 도마",
+      "input": "Space",
+      "expected": "작업 동작이 시작되지 않음"
+    },
+    {
+      "id": "FR-COOK-014",
+      "module": "COOK",
+      "section": "3.4",
+      "name": "접시 내용물만 비우기",
+      "precondition": "내용물 있는 접시 소지",
+      "input": "쓰레기통에 E",
+      "expected": "내용물만 소멸, **접시는 손에 남음**"
+    },
+    {
+      "id": "FR-PLATE-001",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "용량 제한",
+      "precondition": "재료 6개 적재됨",
+      "expected": "7번째 재료는 담기지 않음"
+    },
+    {
+      "id": "FR-PLATE-002",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "순서 무관 판정",
+      "precondition": "—",
+      "expected": "담는 순서가 달라도 같은 구성이면 동일 판정"
+    },
+    {
+      "id": "FR-PLATE-003",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "자동 정렬",
+      "precondition": "재료 적재 시",
+      "expected": "정렬 순서(빵0 → 패티10 → 양상추20 → 토마토30 → 양파40 → 치즈50)로 재배치"
+    },
+    {
+      "id": "FR-PLATE-004",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "윗빵 표시",
+      "precondition": "접시에 빵이 있음 (**다른 재료 불필요**)",
+      "expected": "최상단에 윗빵 모델이 덮임 (시각 전용, 판정 무관)"
+    },
+    {
+      "id": "FR-PLATE-007",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "윗빵 높이",
+      "precondition": "재료 적재 시",
+      "expected": "쌓인 재료 두께의 합만큼 윗빵이 올라감"
+    },
+    {
+      "id": "FR-PLATE-008",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "윗빵 미표시",
+      "precondition": "접시가 비었거나 맨 아래가 빵이 아님",
+      "expected": "윗빵이 표시되지 않음"
+    },
+    {
+      "id": "FR-PLATE-009",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "소유 관계",
+      "precondition": "재료가 접시에 담김",
+      "expected": "재료의 주인이 접시가 됨. **바닥 물건으로 인식되지 않음**"
+    },
+    {
+      "id": "FR-PLATE-010",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "접시 우선 집기",
+      "precondition": "내용물이 있는 접시가 설비에 놓임",
+      "expected": "E 로 집으면 **접시가** 집힘 (재료가 뽑히지 않음)"
+    },
+    {
+      "id": "FR-PLATE-011",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "담긴 재료의 신선도",
+      "precondition": "재료가 접시에 담김",
+      "expected": "신선도가 줄지 않음"
+    },
+    {
+      "id": "FR-PLATE-005",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "빈 접시 제출",
+      "precondition": "내용물 없음",
+      "expected": "제출 거부, 판정 결과 `EmptyPlate`"
+    },
+    {
+      "id": "FR-PLATE-006",
+      "module": "PLATE",
+      "section": "3.5",
+      "name": "접시 반납",
+      "precondition": "빈 접시 소지",
+      "expected": "접시 선반에 E → 접시 소멸(반납)"
+    },
+    {
+      "id": "FR-FRESH-001",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "신선도 감소",
+      "precondition": "재료가 바닥에 놓임",
+      "expected": "매 프레임 남은 시간 감소, 게이지가 초록→빨강으로 변화"
+    },
+    {
+      "id": "FR-FRESH-002",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "소멸",
+      "precondition": "남은 시간 0 도달",
+      "expected": "재료가 씬에서 제거됨"
+    },
+    {
+      "id": "FR-FRESH-003",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "타이머 정지",
+      "precondition": "재료를 줍거나 설비에 올림",
+      "expected": "감소 중단. **남은 시간은 유지**"
+    },
+    {
+      "id": "FR-FRESH-004",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "재개",
+      "precondition": "다시 바닥에 놓음",
+      "expected": "남은 시간부터 이어서 감소 (**리셋되지 않음**)"
+    },
+    {
+      "id": "FR-FRESH-005",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "게이지 표시 조건",
+      "precondition": "바닥에 있고 타이머가 시작됨",
+      "expected": "재료 위에 게이지 표시"
+    },
+    {
+      "id": "FR-FRESH-006",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "게이지 숨김",
+      "precondition": "손·설비에 있음",
+      "expected": "게이지 숨김"
+    },
+    {
+      "id": "FR-FRESH-007",
+      "module": "FRESH",
+      "section": "3.5.1",
+      "name": "접시 예외",
+      "precondition": "접시가 바닥에 있음",
+      "expected": "접시는 상하지 않음 (재료만 대상)"
+    },
+    {
+      "id": "FR-ORDER-001",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "최초 주문 지연",
+      "precondition": "라운드 시작",
+      "expected": "8초 후 첫 주문 생성"
+    },
+    {
+      "id": "FR-ORDER-002",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "주문 생성",
+      "precondition": "스폰 타이머 만료 + 활성 주문 < 상한",
+      "expected": "메뉴에서 무작위 레시피로 주문 생성"
+    },
+    {
+      "id": "FR-ORDER-003",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "동시 주문 상한",
+      "precondition": "활성 주문 3건",
+      "expected": "신규 주문 생성 보류, 1초 후 재시도"
+    },
+    {
+      "id": "FR-ORDER-004",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "제한시간 감소",
+      "precondition": "주문 활성",
+      "expected": "매 틱 남은 시간 감소, 0에서 하한"
+    },
+    {
+      "id": "FR-ORDER-005",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "주문 만료",
+      "precondition": "남은 시간 0 도달",
+      "expected": "주문 제거, 페널티 적용, 콤보 초기화"
+    },
+    {
+      "id": "FR-ORDER-006",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "종료 임박 시 생성 중단",
+      "precondition": "라운드 잔여 < 15 × 시간배율",
+      "expected": "신규 주문 생성 안 함"
+    },
+    {
+      "id": "FR-ORDER-007",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "변형 미적용 구간",
+      "precondition": "진행도 ≤ 0.35",
+      "expected": "변형이 붙지 않음"
+    },
+    {
+      "id": "FR-ORDER-008",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "변형 적용",
+      "precondition": "진행도 > 0.35",
+      "expected": "확률에 따라 추가/제거 변형 1건 부여"
+    },
+    {
+      "id": "FR-ORDER-009",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "변형 보정",
+      "precondition": "변형 부여됨",
+      "expected": "제한시간 ×1.12, 보상 +5"
+    },
+    {
+      "id": "FR-ORDER-010",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "제거 불가 재료",
+      "precondition": "—",
+      "expected": "빵·패티는 제거 변형 대상에서 제외"
+    },
+    {
+      "id": "FR-ORDER-011",
+      "module": "ORDER",
+      "section": "3.6",
+      "name": "매칭 우선순위",
+      "precondition": "동일 구성 주문 복수",
+      "expected": "**남은 시간이 가장 적은 주문**부터 소진"
+    },
+    {
+      "id": "FR-SCORE-001",
+      "module": "SCORE",
+      "section": "3.7",
+      "precondition": "내용물이 활성 주문과 일치",
+      "expected": "성공. 보상 지급, 콤보 +1, 접시 회수"
+    },
+    {
+      "id": "FR-SCORE-002",
+      "module": "SCORE",
+      "section": "3.7",
+      "precondition": "일치하는 주문 없음",
+      "expected": "실패. 골드 −5, 콤보 0, 접시 회수"
+    },
+    {
+      "id": "FR-SCORE-003",
+      "module": "SCORE",
+      "section": "3.7",
+      "precondition": "빈 접시 제출",
+      "expected": "무효. 점수 변화 없음, 접시 유지"
+    },
+    {
+      "id": "FR-SCORE-004",
+      "module": "SCORE",
+      "section": "3.7",
+      "precondition": "주문 만료",
+      "expected": "골드 −10, 콤보 0"
+    },
+    {
+      "id": "FR-SCORE-005",
+      "module": "SCORE",
+      "section": "3.7",
+      "precondition": "보상 계산",
+      "expected": "`round(기본보상 × (1 + 0.5 × 남은시간비율) × 콤보배율)`"
+    },
+    {
+      "id": "FR-SCORE-006",
+      "module": "SCORE",
+      "section": "3.7",
+      "precondition": "콤보 배율",
+      "expected": "`1 + 0.1 × 연속성공수`, 상한 2.0 (= 10연속에서 최대)"
+    },
+    {
+      "id": "FR-SCORE-007",
+      "module": "SCORE",
+      "section": "3.7",
+      "spec_note": "명세 표 머리(ID, 조건, 결과)와 행의 열 수가 달라 기능 열을 추가해 읽음",
+      "name": "골드 하한",
+      "precondition": "페널티가 보유 골드를 초과",
+      "expected": "골드는 0 미만으로 내려가지 않음"
+    },
+    {
+      "id": "FR-ROUND-001",
+      "module": "ROUND",
+      "section": "3.8",
+      "precondition": "씬 진입",
+      "expected": "라운드 자동 시작 (240초)"
+    },
+    {
+      "id": "FR-ROUND-002",
+      "module": "ROUND",
+      "section": "3.8",
+      "precondition": "경과 시간 ≥ 240초",
+      "expected": "라운드 종료, 활성 주문 전부 제거(페널티 없음)"
+    },
+    {
+      "id": "FR-ROUND-003",
+      "module": "ROUND",
+      "section": "3.8",
+      "precondition": "종료 시",
+      "expected": "결과 화면 표시, 시뮬레이션 일시정지"
+    },
+    {
+      "id": "FR-ROUND-004",
+      "module": "ROUND",
+      "section": "3.8",
+      "precondition": "다시 도전 버튼",
+      "expected": "점수·주문 초기화 후 재시작"
+    }
+  ]
+}

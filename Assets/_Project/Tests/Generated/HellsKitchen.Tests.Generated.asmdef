@@ -1,0 +1,27 @@
+{
+    "name": "HellsKitchen.Tests.Generated",
+    "rootNamespace": "HellsKitchen.Tests.Generated",
+    "references": [
+        "HellsKitchen.Core",
+        "HellsKitchen.Data",
+        "HellsKitchen.Runtime",
+        "Testing.Shared.Traceability",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

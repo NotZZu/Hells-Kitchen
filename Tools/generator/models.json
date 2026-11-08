@@ -1,0 +1,32 @@
+{
+  "fx": { "USD": 1325, "CNY": 200 },
+  "timeoutSeconds": 180,
+  "networkRetries": 3,
+  "profiles": {
+    "haiku": {
+      "kind": "api", "provider": "claude", "model": "claude-haiku-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "price": { "currency": "USD", "inputPerM": 0.10, "outputPerM": 0.50 }
+    },
+    "sonnet": {
+      "kind": "api", "provider": "claude", "model": "claude-sonnet-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "price": { "currency": "USD", "inputPerM": 2, "outputPerM": 10 }
+    },
+    "gemini-flash-lite": {
+      "kind": "api", "provider": "gemini", "model": "gemini-3.1-flash-lite", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json",
+      "extraBody": { "generationConfig": { "thinkingConfig": { "thinkingLevel": "low" } } },
+      "price": { "currency": "USD", "inputPerM": 0.25, "outputPerM": 1.5 }
+    },
+    "gemini-3-8-flash": {
+      "kind": "api", "provider": "gemini", "model": "gemini-3.8-flash", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json",
+      "extraBody": { "generationConfig": { "thinkingConfig": { "thinkingLevel": "low" } } }
+    },
+    "deepseek-flash": {
+      "kind": "api", "provider": "deepseek", "model": "deepseek-flash", "apiKeyEnv": "DEEPSEEK_API_KEY", "jsonMode": "json",
+      "extraBody": { "thinking": { "type": "disabled" } },
+      "price": { "currency": "CNY", "inputPerM": 2, "outputPerM": 8 }
+    },
+    "local": {
+      "kind": "local", "baseUrl": "http://localhost:11434/v1", "model": "qwen2.5-coder:7b", "jsonMode": "json"
+    }
+  }
+}

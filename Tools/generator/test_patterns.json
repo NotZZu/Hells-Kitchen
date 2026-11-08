@@ -1,0 +1,85 @@
+{
+  "patterns": [
+    {
+      "id": "P1",
+      "name": "공개 메서드 직접 호출",
+      "applies": "A (INT-003~006, 008 / COOK-001~008, 012~014, 018, 019 / PLATE-003, 005, 006, 009, 010)",
+      "shape": "객체 생성 -> 공개 메서드 호출 -> 상태 확인",
+      "needs": [
+        "객체 생성 도우미",
+        "IngredientDefinition 생성"
+      ]
+    },
+    {
+      "id": "P2",
+      "name": "비공개 필드 주입",
+      "applies": "Awake/직렬화 필드가 필요한 거의 모든 Runtime 시험",
+      "shape": "SetField(obj, \"_hands\", hands) 처럼 이름으로 주입. Awake 가 호출되지 않는다는 가정",
+      "needs": [
+        "리플렉션 도우미(필드·백킹 필드)"
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "비공개 메서드 호출",
+      "applies": "B1/B3 (MOVE, INT-002/007/009, DROP-004~007, 013~017)",
+      "shape": "Invoke(obj, \"Move\", dt) / Invoke(null-type, \"WeightedDistance\", a, b)",
+      "needs": [
+        "리플렉션 도우미(인스턴스·정적)"
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "측정한 deltaTime 으로 기대값 계산",
+      "applies": "B2 (FRESH-001~004, 007 / PLATE-011 / COOK-009, 010 / DROP-001~003, 008~012 일부)",
+      "shape": "dt = Time.deltaTime 을 읽음 -> Update 호출 -> 기대값 = 시작 - dt. 시작에 dt>0 이 아니면 Inconclusive",
+      "needs": [
+        "deltaTime 가드 도우미"
+      ],
+      "caveat": "호출 사이 deltaTime 이 바뀔 수 있어 실험(2026-11-07)에서는 같은 순간 읽은 값과 일치했다. CI 리눅스 러너는 미확인"
+    },
+    {
+      "id": "P5",
+      "name": "경계값 한 쌍",
+      "applies": "숫자 임계가 있는 요구사항 전반(0.22초, 0.9초, 4초, 1.2m, 2.2m, 0.55m)",
+      "shape": "임계 바로 아래/위 두 값으로 두 결과 확인. 내부 시간은 _holdTime/_elapsed 주입으로 임계 직전에 둠",
+      "needs": [
+        "P2"
+      ]
+    },
+    {
+      "id": "P6",
+      "name": "가짜 입력 공급자",
+      "applies": "DROP-001~003, 010~012, INT 일부, MOVE(Update 경유 시)",
+      "shape": "IIntentSource 구현 MonoBehaviour 를 만들어 PlayerIntent 를 직접 쓴다",
+      "needs": [
+        "FakeIntentSource 클래스 1개"
+      ]
+    },
+    {
+      "id": "P7",
+      "name": "EditMode Destroy 오류 로그 처리",
+      "applies": "Dispose 를 거치는 경로(FRESH-002, COOK-013/014, PLATE-006, TrashStation)",
+      "shape": "LogAssert.Expect(LogType.Error, regex \"Destroy may not be called from edit mode\") 후 호출. 오브젝트는 남으므로 상태·플래그로 확인",
+      "needs": [
+        "LogAssert 도우미"
+      ]
+    },
+    {
+      "id": "P8",
+      "name": "물리 질의 의존(파일럿 확인 필요)",
+      "applies": "ThrownItem.FindStation, PlayerInteraction.UpdateFocus (DROP-005~007, 013~016, INT-001 일부)",
+      "shape": "BoxCollider 가 달린 설비를 배치하고 Physics.SyncTransforms 후 질의. 안 되면 해당 건은 TC 설계만(C)으로 내림",
+      "needs": [
+        "콜라이더 배치 도우미"
+      ]
+    },
+    {
+      "id": "P9",
+      "name": "TC 설계만",
+      "applies": "C (MOVE-009, INT-001 시각, COOK-011/015/016/017, PLATE-004/007/008, FRESH-005/006)",
+      "shape": "코드는 만들지 않고 TC 설계 JSON 만 비교",
+      "needs": []
+    }
+  ]
+}

@@ -1,0 +1,1622 @@
+{
+  "basis": "Runtime 소스 본문 직접 확인(2026-11-08). 읽은 파일: PlayerCharacter, PlayerDropThrow, PlayerHands, PlayerInteraction, PlayerIntent/LocalIntentSource, ThrownItem, Carryable, IngredientItem, PlateItem, ItemFactory, Station 및 하위 설비 7종, IngredientDefinition, GameSession",
+  "classes": [
+    {
+      "class": "PlayerCharacter",
+      "namespace": "HellsKitchen.Runtime.Player",
+      "base": "MonoBehaviour",
+      "requires": [
+        "CharacterController"
+      ],
+      "create": "new GameObject().AddComponent<PlayerCharacter>()  // RequireComponent 로 CharacterController 가 같이 붙음",
+      "inject": [
+        {
+          "field": "_controller",
+          "names": [
+            "_controller"
+          ],
+          "type": "CharacterController",
+          "note": "Awake 미호출 가정: GetComponent 로 직접 넣는다"
+        },
+        {
+          "field": "<Intent>k__BackingField",
+          "names": [
+            "<Intent>k__BackingField"
+          ],
+          "type": "PlayerIntent",
+          "note": "Intent 의 private setter 대신 백킹 필드로 입력을 주입"
+        },
+        {
+          "field": "_horizontalVelocity",
+          "names": [
+            "_horizontalVelocity"
+          ],
+          "type": "Vector3",
+          "note": "시작 속도 지정(관성·가속 시험)"
+        },
+        {
+          "field": "_walkSpeed/_runSpeed/_acceleration/_deceleration/_runDeceleration/_steerSpeedWalk/_steerSpeedRun/_bodyTurnSpeed",
+          "names": [
+            "_walkSpeed",
+            "_runSpeed",
+            "_acceleration",
+            "_deceleration",
+            "_runDeceleration",
+            "_steerSpeedWalk",
+            "_steerSpeedRun",
+            "_bodyTurnSpeed"
+          ],
+          "type": "float",
+          "note": "기본값 4.2/8.5/16/22/7/900/300/900"
+        },
+        {
+          "field": "_cameraRelative",
+          "names": [
+            "_cameraRelative"
+          ],
+          "type": "bool",
+          "note": "false 로 두면 카메라 없이 월드 기준 방향"
+        }
+      ],
+      "members": [
+        {
+          "name": "CurrentSpeed",
+          "names": [
+            "CurrentSpeed"
+          ],
+          "memberKind": "property",
+          "signature": "float {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "_horizontalVelocity.magnitude"
+        },
+        {
+          "name": "IsSprinting",
+          "names": [
+            "IsSprinting"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get; private set}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "NormalizedSpeed",
+          "names": [
+            "NormalizedSpeed"
+          ],
+          "memberKind": "property",
+          "signature": "float {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Move",
+          "names": [
+            "Move"
+          ],
+          "memberKind": "method",
+          "signature": "void Move(float dt)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "dt 를 인자로 받음 -> 결정적. 끝에서 _controller.Move(...) 호출(EditMode 동작은 파일럿에서 확인)"
+        },
+        {
+          "name": "ApplyRotation",
+          "names": [
+            "ApplyRotation"
+          ],
+          "memberKind": "method",
+          "signature": "void ApplyRotation(float dt)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "속도 제곱 <= 0.01 이면 회전 생략"
+        },
+        {
+          "name": "ResolveDirection",
+          "names": [
+            "ResolveDirection"
+          ],
+          "memberKind": "method",
+          "signature": "Vector3 ResolveDirection(Vector2 input)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "순수 계산(카메라 없으면 입력 그대로, 길이 1 초과 시 정규화)"
+        },
+        {
+          "name": "Update",
+          "names": [
+            "Update"
+          ],
+          "memberKind": "method",
+          "signature": "void Update()",
+          "visibility": "private",
+          "readsTimeDeltaTime": true,
+          "usesPhysicsQuery": false,
+          "note": "Intent 읽고 Move(Time.deltaTime). 직접 시험하지 말고 Move(dt) 호출"
+        }
+      ],
+      "risks": [
+        "CharacterController.Move 가 EditMode 에서 동작하는지 미확인(파일럿 항목)",
+        "Awake 가 호출되지 않으면 _controller null"
+      ],
+      "kind": "component",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "PlayerDropThrow",
+      "namespace": "HellsKitchen.Runtime.Player",
+      "base": "MonoBehaviour",
+      "requires": [
+        "PlayerHands"
+      ],
+      "create": "go.AddComponent<PlayerDropThrow>()  // PlayerHands 자동 부착",
+      "inject": [
+        {
+          "field": "_intentSource",
+          "names": [
+            "_intentSource"
+          ],
+          "type": "IIntentSource",
+          "note": "가짜 입력 공급자(MonoBehaviour 구현)를 만들어 주입"
+        },
+        {
+          "field": "_hands",
+          "names": [
+            "_hands"
+          ],
+          "type": "PlayerHands",
+          "note": "GetComponent 결과를 직접 넣는다"
+        },
+        {
+          "field": "_holdTime",
+          "names": [
+            "_holdTime"
+          ],
+          "type": "float",
+          "note": "경계값(0.22 미만/이상, 0.9) 직전으로 세팅"
+        },
+        {
+          "field": "_wasHeld",
+          "names": [
+            "_wasHeld"
+          ],
+          "type": "bool",
+          "note": ""
+        },
+        {
+          "field": "_cancelledUntilRelease",
+          "names": [
+            "_cancelledUntilRelease"
+          ],
+          "type": "bool",
+          "note": ""
+        },
+        {
+          "field": "_chargeDelay/_fullChargeSeconds/_dropDistance/_minThrowSpeed/_maxThrowSpeed/_throwAngle",
+          "names": [
+            "_chargeDelay",
+            "_fullChargeSeconds",
+            "_dropDistance",
+            "_minThrowSpeed",
+            "_maxThrowSpeed",
+            "_throwAngle"
+          ],
+          "type": "float",
+          "note": "0.22/0.9/0.95/6/14/24"
+        }
+      ],
+      "members": [
+        {
+          "name": "ChargeRatio",
+          "names": [
+            "ChargeRatio"
+          ],
+          "memberKind": "property",
+          "signature": "float {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "(holdTime - delay)/full, 0~1. 순수 계산 -> _holdTime 주입 후 읽기 가능"
+        },
+        {
+          "name": "IsCharging",
+          "names": [
+            "IsCharging"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "_hands.IsEmpty 가 아니고 holdTime > delay"
+        },
+        {
+          "name": "Update",
+          "names": [
+            "Update"
+          ],
+          "memberKind": "method",
+          "signature": "void Update()",
+          "visibility": "private",
+          "readsTimeDeltaTime": true,
+          "usesPhysicsQuery": false,
+          "note": "held 면 _holdTime += Time.deltaTime. 떼면 DropAtFeet 또는 Throw"
+        },
+        {
+          "name": "DropAtFeet",
+          "names": [
+            "DropAtFeet"
+          ],
+          "memberKind": "method",
+          "signature": "void DropAtFeet()",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "transform.position + forward*0.95, y=0 에 PlaceOnGround"
+        },
+        {
+          "name": "Throw",
+          "names": [
+            "Throw"
+          ],
+          "memberKind": "method",
+          "signature": "void Throw(float power)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "ThrownItem.Launch 호출. 속도 Lerp(6,14,power), 방향 -24도"
+        }
+      ],
+      "risks": [
+        "Throw 는 ThrownItem(AddComponent)과 Random.Range 를 거친다 -> 속도는 ThrownItem._velocity 를 리플렉션으로 읽어 확인"
+      ],
+      "kind": "component",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "PlayerHands",
+      "namespace": "HellsKitchen.Runtime.Player",
+      "base": "MonoBehaviour",
+      "create": "go.AddComponent<PlayerHands>()",
+      "inject": [
+        {
+          "field": "_holdAnchor",
+          "names": [
+            "_holdAnchor"
+          ],
+          "type": "Transform",
+          "note": "없으면 자기 transform"
+        }
+      ],
+      "members": [
+        {
+          "name": "Held",
+          "names": [
+            "Held"
+          ],
+          "memberKind": "property",
+          "signature": "Carryable {get; private set}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "IsEmpty",
+          "names": [
+            "IsEmpty"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "HoldAnchor",
+          "names": [
+            "HoldAnchor"
+          ],
+          "memberKind": "property",
+          "signature": "Transform {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Hold",
+          "names": [
+            "Hold"
+          ],
+          "memberKind": "method",
+          "signature": "void Hold(Carryable item)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Release",
+          "names": [
+            "Release"
+          ],
+          "memberKind": "method",
+          "signature": "Carryable Release()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Clear",
+          "names": [
+            "Clear"
+          ],
+          "memberKind": "method",
+          "signature": "void Clear()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        }
+      ],
+      "risks": [],
+      "kind": "component",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "PlayerInteraction",
+      "namespace": "HellsKitchen.Runtime.Player",
+      "base": "MonoBehaviour",
+      "requires": [
+        "PlayerCharacter",
+        "PlayerHands"
+      ],
+      "create": "go.AddComponent<PlayerInteraction>()  // PlayerCharacter, PlayerHands 자동 부착",
+      "inject": [
+        {
+          "field": "_hands",
+          "names": [
+            "_hands"
+          ],
+          "type": "PlayerHands",
+          "note": ""
+        },
+        {
+          "field": "_intentSource",
+          "names": [
+            "_intentSource"
+          ],
+          "type": "IIntentSource",
+          "note": ""
+        },
+        {
+          "field": "_focused",
+          "names": [
+            "_focused"
+          ],
+          "type": "Station",
+          "note": "UpdateFocus(물리 질의)를 건너뛰고 대상을 직접 지정"
+        },
+        {
+          "field": "_focusedLooseItem",
+          "names": [
+            "_focusedLooseItem"
+          ],
+          "type": "Carryable",
+          "note": "바닥 물건 대상을 직접 지정"
+        },
+        {
+          "field": "_looseGrabRange/_maxAngle/_detectionRadius/_detectionOffset",
+          "names": [
+            "_looseGrabRange",
+            "_maxAngle",
+            "_detectionRadius",
+            "_detectionOffset"
+          ],
+          "type": "float",
+          "note": "1.2/110/1.4/0.7"
+        }
+      ],
+      "members": [
+        {
+          "name": "HandleInteract",
+          "names": [
+            "HandleInteract"
+          ],
+          "memberKind": "method",
+          "signature": "void HandleInteract()",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "순서: (0) 빈손+바닥 물건 줍기(설비보다 우선) (1) 빈손 TryTake (2) 접시면 TryTransferTo (3) TryPlace 성공 시 Clear"
+        },
+        {
+          "name": "ScoreTarget",
+          "names": [
+            "ScoreTarget"
+          ],
+          "memberKind": "method",
+          "signature": "float ScoreTarget(Vector3 targetPosition, float cosLimit, float closeRange = 0f)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "순수 계산. closeRange 안이면 50-distance(각도 무시), 그 밖은 dot*2-distance*0.5, 각도 밖이면 -Infinity"
+        },
+        {
+          "name": "UpdateFocus",
+          "names": [
+            "UpdateFocus"
+          ],
+          "memberKind": "method",
+          "signature": "void UpdateFocus()",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": true,
+          "note": "Physics.OverlapSphereNonAlloc 사용 -> 콜라이더 필요"
+        },
+        {
+          "name": "HandleWork",
+          "names": [
+            "HandleWork"
+          ],
+          "memberKind": "method",
+          "signature": "void HandleWork(bool held, float deltaSeconds)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "dt 를 인자로 받음. 설비 SupportsWork && HasWorkPending 일 때 OnWorkHeld(dt)"
+        },
+        {
+          "name": "Update",
+          "names": [
+            "Update"
+          ],
+          "memberKind": "method",
+          "signature": "void Update()",
+          "visibility": "private",
+          "readsTimeDeltaTime": true,
+          "usesPhysicsQuery": true,
+          "note": ""
+        }
+      ],
+      "risks": [
+        "UpdateFocus 경로(INT-001/002 일부)는 물리 질의가 필요하므로 대상 지정 방식으로 우회"
+      ],
+      "kind": "component",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "ThrownItem",
+      "namespace": "HellsKitchen.Runtime.Items",
+      "base": "MonoBehaviour",
+      "create": "ThrownItem.Launch(item, origin, velocity)  // public static, 내부에서 AddComponent",
+      "inject": [
+        {
+          "field": "_item",
+          "names": [
+            "_item"
+          ],
+          "type": "Carryable",
+          "note": ""
+        },
+        {
+          "field": "_velocity",
+          "names": [
+            "_velocity"
+          ],
+          "type": "Vector3",
+          "note": ""
+        },
+        {
+          "field": "_elapsed",
+          "names": [
+            "_elapsed"
+          ],
+          "type": "float",
+          "note": "4초 경계 직전으로 세팅"
+        }
+      ],
+      "constants": {
+        "Gravity": -22,
+        "GroundY": 0,
+        "CatchRadius": 0.7,
+        "HomingRadius": 2.2,
+        "HomingStrength": 11,
+        "VerticalTolerance": 0.45,
+        "MaxFlightSeconds": 4
+      },
+      "members": [
+        {
+          "name": "Launch",
+          "names": [
+            "Launch"
+          ],
+          "memberKind": "method",
+          "signature": "static void Launch(Carryable item, Vector3 origin, Vector3 velocity)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "item.IsFlying=true, IngredientItem 이면 SetGroundMode(true). 회전 스핀은 Random.Range"
+        },
+        {
+          "name": "Update",
+          "names": [
+            "Update"
+          ],
+          "memberKind": "method",
+          "signature": "void Update()",
+          "visibility": "private",
+          "readsTimeDeltaTime": true,
+          "usesPhysicsQuery": true,
+          "note": "순서: elapsed += dt -> ApplyHoming -> 중력 -> TryLandOnStation -> y<=0 이면 LandOnGround -> elapsed>=4 이면 낙하"
+        },
+        {
+          "name": "ApplyHoming",
+          "names": [
+            "ApplyHoming"
+          ],
+          "memberKind": "method",
+          "signature": "void ApplyHoming(Vector3 position, float dt)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": true,
+          "note": "FindStation(2.2m) 후 끌림>1 일 때만 보정"
+        },
+        {
+          "name": "TryLandOnStation",
+          "names": [
+            "TryLandOnStation"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryLandOnStation(Vector3 position)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": true,
+          "note": "FindStation(CatchRadius*1.8) 후 reach 이내면 station.TryPlace"
+        },
+        {
+          "name": "FindStation",
+          "names": [
+            "FindStation"
+          ],
+          "memberKind": "method",
+          "signature": "Station FindStation(Vector3 position, float radius, out float attraction)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": true,
+          "note": ""
+        },
+        {
+          "name": "WeightedDistance",
+          "names": [
+            "WeightedDistance"
+          ],
+          "memberKind": "method",
+          "signature": "static float WeightedDistance(Vector3 a, Vector3 b)",
+          "visibility": "private static",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "순수 계산: delta.y *= 0.45 후 magnitude -> DROP-017 은 물리 없이 시험 가능"
+        },
+        {
+          "name": "LandOnGround",
+          "names": [
+            "LandOnGround"
+          ],
+          "memberKind": "method",
+          "signature": "void LandOnGround(Vector3 position)",
+          "visibility": "private",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "item.PlaceOnGround 후 Finish(Destroy(this))"
+        }
+      ],
+      "risks": [
+        "FindStation 은 Physics.OverlapSphereNonAlloc 사용. EditMode 에서 콜라이더를 만들고 Physics.SyncTransforms 후 질의가 되는지 파일럿에서 확인",
+        "콜라이더 없이도 Update 는 돌아가며 설비를 못 찾으면 바닥 착지로 이어진다(DROP-008/009 경로)"
+      ],
+      "kind": "component",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "Carryable",
+      "namespace": "HellsKitchen.Runtime.Items",
+      "base": "MonoBehaviour (abstract)",
+      "create": "IngredientItem 또는 PlateItem 으로 만든다",
+      "members": [
+        {
+          "name": "AttachTo",
+          "names": [
+            "AttachTo"
+          ],
+          "memberKind": "method",
+          "signature": "virtual void AttachTo(Transform anchor, bool held)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Detach",
+          "names": [
+            "Detach"
+          ],
+          "memberKind": "method",
+          "signature": "virtual void Detach()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "PlaceOnGround",
+          "names": [
+            "PlaceOnGround"
+          ],
+          "memberKind": "method",
+          "signature": "virtual void PlaceOnGround(Vector3 position)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Dispose",
+          "names": [
+            "Dispose"
+          ],
+          "memberKind": "method",
+          "signature": "virtual void Dispose()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "Detach + Destroy(gameObject). EditMode 에서는 'Destroy may not be called from edit mode!' 오류 로그를 남기고 오브젝트가 남음 -> LogAssert.Expect"
+        },
+        {
+          "name": "IsLoose",
+          "names": [
+            "IsLoose"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "CurrentAnchor==null && !IsHeld && !IsFlying"
+        },
+        {
+          "name": "IsFlying",
+          "names": [
+            "IsFlying"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get; internal set}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "internal setter: 리플렉션 또는 InternalsVisibleTo 없으면 ThrownItem.Launch 로만 설정"
+        }
+      ],
+      "risks": [],
+      "kind": "abstract",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "IngredientItem",
+      "namespace": "HellsKitchen.Runtime.Items",
+      "base": "Carryable",
+      "create": "IngredientDefinition 을 만든 뒤 IngredientItem 을 만들고 Initialize(정의)를 호출한다",
+      "inject": [
+        {
+          "field": "<GroundLifeRemaining>k__BackingField",
+          "names": [
+            "<GroundLifeRemaining>k__BackingField"
+          ],
+          "type": "float",
+          "note": "GroundLifeRemaining 의 private setter 대신 백킹 필드로 값을 넣는다(신선도 시험)"
+        }
+      ],
+      "members": [
+        {
+          "name": "Initialize",
+          "names": [
+            "Initialize"
+          ],
+          "memberKind": "method",
+          "signature": "void Initialize(IngredientDefinition definition, ProcessState state = Raw)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "ChangeTo",
+          "names": [
+            "ChangeTo"
+          ],
+          "memberKind": "method",
+          "signature": "void ChangeTo(IngredientDefinition definition, ProcessState state = Raw)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "SetState",
+          "names": [
+            "SetState"
+          ],
+          "memberKind": "method",
+          "signature": "void SetState(ProcessState state)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "같은 상태면 무시, 다르면 진행도 초기화"
+        },
+        {
+          "name": "SetPlateMode",
+          "names": [
+            "SetPlateMode"
+          ],
+          "memberKind": "method",
+          "signature": "void SetPlateMode(bool onPlate)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "SetGroundMode",
+          "names": [
+            "SetGroundMode"
+          ],
+          "memberKind": "method",
+          "signature": "void SetGroundMode(bool inWorld)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "AddProgress",
+          "names": [
+            "AddProgress"
+          ],
+          "memberKind": "method",
+          "signature": "bool AddProgress(float normalizedDelta)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "0 이하 무시, 1 도달 시 true 이고 1 로 고정"
+        },
+        {
+          "name": "ResetProgress",
+          "names": [
+            "ResetProgress"
+          ],
+          "memberKind": "method",
+          "signature": "void ResetProgress()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "AddOverCook",
+          "names": [
+            "AddOverCook"
+          ],
+          "memberKind": "method",
+          "signature": "bool AddOverCook(float deltaSeconds)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "누적 >= BurnSeconds 면 true"
+        },
+        {
+          "name": "GroundLifeRemaining",
+          "names": [
+            "GroundLifeRemaining"
+          ],
+          "memberKind": "property",
+          "signature": "float {get; private set}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "초기값 -1. 첫 Update 에서 GroundLifeSeconds 로 채움"
+        },
+        {
+          "name": "GroundLifeRatio",
+          "names": [
+            "GroundLifeRatio"
+          ],
+          "memberKind": "property",
+          "signature": "float {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "IsSpoiling",
+          "names": [
+            "IsSpoiling"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "IsLoose && GroundLifeRemaining >= 0"
+        },
+        {
+          "name": "IsBurned",
+          "names": [
+            "IsBurned"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Update",
+          "names": [
+            "Update"
+          ],
+          "memberKind": "method",
+          "signature": "void Update()",
+          "visibility": "private",
+          "readsTimeDeltaTime": true,
+          "usesPhysicsQuery": false,
+          "note": "IsLoose 일 때만. 남은 시간 -= Time.deltaTime, 0 이하면 0 으로 고정 후 Dispose (2026-11-07 실험 확인)"
+        }
+      ],
+      "risks": [
+        "GroundLifeRemaining 세팅은 백킹 필드 '<GroundLifeRemaining>k__BackingField' 로 리플렉션",
+        "Dispose 경로는 LogAssert 처리"
+      ],
+      "kind": "component",
+      "baseClass": "Carryable"
+    },
+    {
+      "class": "IngredientDefinition",
+      "namespace": "HellsKitchen.Data",
+      "base": "ScriptableObject",
+      "create": "ScriptableObject.CreateInstance<IngredientDefinition>()  // 필드가 전부 public",
+      "members": [
+        {
+          "name": "Type/Choppable/Cookable/ChopResult/ChopSeconds(2.5)/CookSeconds(6)/BurnSeconds(6)/GroundLifeSeconds(20)/PlateSortOrder(50)/PlateStackHeight(0.05)",
+          "names": [
+            "Type",
+            "Choppable",
+            "Cookable",
+            "ChopResult",
+            "ChopSeconds",
+            "CookSeconds",
+            "BurnSeconds",
+            "GroundLifeSeconds",
+            "PlateSortOrder",
+            "PlateStackHeight"
+          ],
+          "memberKind": "field",
+          "signature": "public fields",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "CanChop",
+          "names": [
+            "CanChop"
+          ],
+          "memberKind": "method",
+          "signature": "bool CanChop(ProcessState state)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "Choppable && state==Raw"
+        },
+        {
+          "name": "CanCook",
+          "names": [
+            "CanCook"
+          ],
+          "memberKind": "method",
+          "signature": "bool CanCook(ProcessState state)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "Cookable && state==Raw"
+        }
+      ],
+      "risks": [
+        "모델 필드(RawModel 등)가 null 이어도 RefreshModel 은 prefab null 이면 조용히 반환"
+      ],
+      "kind": "scriptable",
+      "baseClass": "ScriptableObject"
+    },
+    {
+      "class": "PlateItem",
+      "namespace": "HellsKitchen.Runtime.Items",
+      "base": "Carryable",
+      "create": "new GameObject().AddComponent<PlateItem>()",
+      "inject": [
+        {
+          "field": "_capacity",
+          "names": [
+            "_capacity"
+          ],
+          "type": "int",
+          "note": "기본 6"
+        }
+      ],
+      "members": [
+        {
+          "name": "TryAdd",
+          "names": [
+            "TryAdd"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryAdd(IngredientItem ingredient)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "CanAccept 후 Detach, SetPlateMode(true), 목록에 추가, LayoutStack(정렬)"
+        },
+        {
+          "name": "CanAccept",
+          "names": [
+            "CanAccept"
+          ],
+          "memberKind": "method",
+          "signature": "bool CanAccept(IngredientItem ingredient)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "null/가득/Type==None 이면 false"
+        },
+        {
+          "name": "TakeTop",
+          "names": [
+            "TakeTop"
+          ],
+          "memberKind": "method",
+          "signature": "IngredientItem TakeTop()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "PlateSortOrder 가장 큰 것(동률은 뒤쪽)을 꺼냄"
+        },
+        {
+          "name": "ClearContents",
+          "names": [
+            "ClearContents"
+          ],
+          "memberKind": "method",
+          "signature": "void ClearContents()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "각 재료 Dispose -> Destroy 로그"
+        },
+        {
+          "name": "BuildContents",
+          "names": [
+            "BuildContents"
+          ],
+          "memberKind": "method",
+          "signature": "IngredientMultiset BuildContents()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "IsEmpty",
+          "names": [
+            "IsEmpty"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "IsFull",
+          "names": [
+            "IsFull"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "HasBurnedIngredient",
+          "names": [
+            "HasBurnedIngredient"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Contents",
+          "names": [
+            "Contents"
+          ],
+          "memberKind": "property",
+          "signature": "IReadOnlyList<IngredientItem> {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "CompareStackOrder",
+          "names": [
+            "CompareStackOrder"
+          ],
+          "memberKind": "method",
+          "signature": "static int CompareStackOrder(IngredientItem a, IngredientItem b)",
+          "visibility": "private static",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "PlateSortOrder 오름차순, null 은 뒤"
+        }
+      ],
+      "risks": [
+        "_stackRoot 없으면 transform 사용. 윗빵(PlateTopperModel)이 null 이면 생성 생략"
+      ],
+      "kind": "component",
+      "baseClass": "Carryable"
+    },
+    {
+      "class": "CounterStation",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "Station",
+      "create": "new GameObject().AddComponent<CounterStation>()",
+      "members": [
+        {
+          "name": "TryTake",
+          "names": [
+            "TryTake"
+          ],
+          "memberKind": "method",
+          "signature": "Carryable TryTake()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "TryPlace",
+          "names": [
+            "TryPlace"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryPlace(Carryable held)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "빈 대=CanAccept 후 올림, 접시+재료=접시에 담음, 그 외 false"
+        },
+        {
+          "name": "TryTransferTo",
+          "names": [
+            "TryTransferTo"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryTransferTo(PlateItem plate)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "놓인 재료를 접시로 옮김"
+        },
+        {
+          "name": "GetAttraction",
+          "names": [
+            "GetAttraction"
+          ],
+          "memberKind": "method",
+          "signature": "float GetAttraction(Carryable item)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "접시 위 대 3.2, 빈 대+접시 2.6, 빈 대+재료 1.1, 점유 0"
+        },
+        {
+          "name": "CanAccept",
+          "names": [
+            "CanAccept"
+          ],
+          "memberKind": "method",
+          "signature": "virtual bool CanAccept(Carryable)",
+          "visibility": "protected",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Current/HasItem",
+          "names": [
+            "Current",
+            "HasItem"
+          ],
+          "memberKind": "property",
+          "signature": "properties",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        }
+      ],
+      "risks": [],
+      "kind": "component",
+      "baseClass": "Station"
+    },
+    {
+      "class": "CuttingStation",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "CounterStation",
+      "create": "new GameObject().AddComponent<CuttingStation>()",
+      "members": [
+        {
+          "name": "OnWorkHeld",
+          "names": [
+            "OnWorkHeld"
+          ],
+          "memberKind": "method",
+          "signature": "void OnWorkHeld(float deltaSeconds)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "duration=max(0.1,ChopSeconds). AddProgress(dt/duration), 완료 시 ChopResult 있으면 ChangeTo(ChopResult, Raw) 아니면 SetState(Chopped)"
+        },
+        {
+          "name": "OnWorkReleased",
+          "names": [
+            "OnWorkReleased"
+          ],
+          "memberKind": "method",
+          "signature": "void OnWorkReleased()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "진행도 유지"
+        },
+        {
+          "name": "HasWorkPending",
+          "names": [
+            "HasWorkPending"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "Progress01",
+          "names": [
+            "Progress01"
+          ],
+          "memberKind": "property",
+          "signature": "float {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "GetAttraction",
+          "names": [
+            "GetAttraction"
+          ],
+          "memberKind": "method",
+          "signature": "float GetAttraction(Carryable)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "손질 가능 + 빈 도마 2.6"
+        },
+        {
+          "name": "CanAccept",
+          "names": [
+            "CanAccept"
+          ],
+          "memberKind": "method",
+          "signature": "bool CanAccept(Carryable)",
+          "visibility": "protected",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "IngredientItem && Definition.CanChop(State)"
+        }
+      ],
+      "risks": [],
+      "kind": "component",
+      "baseClass": "CounterStation"
+    },
+    {
+      "class": "StoveStation",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "CounterStation",
+      "create": "new GameObject().AddComponent<StoveStation>()",
+      "members": [
+        {
+          "name": "Update",
+          "names": [
+            "Update"
+          ],
+          "memberKind": "method",
+          "signature": "void Update()",
+          "visibility": "private",
+          "readsTimeDeltaTime": true,
+          "usesPhysicsQuery": false,
+          "note": "Raw: AddProgress(dt/max(0.1,CookSeconds)) 완료 시 Cooked / Cooked: AddOverCook(dt) 완료 시 Burned / 그 외 정지"
+        },
+        {
+          "name": "CanAccept",
+          "names": [
+            "CanAccept"
+          ],
+          "memberKind": "method",
+          "signature": "bool CanAccept(Carryable)",
+          "visibility": "protected",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "IngredientItem && Definition.CanCook(State)"
+        },
+        {
+          "name": "Progress01",
+          "names": [
+            "Progress01"
+          ],
+          "memberKind": "property",
+          "signature": "float {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "IsProgressCritical",
+          "names": [
+            "IsProgressCritical"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "ShowsProgress",
+          "names": [
+            "ShowsProgress"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        }
+      ],
+      "risks": [
+        "임계 통과는 CookSeconds/BurnSeconds 를 0.1 로 낮추고 진행도를 임계 직전으로 올린 뒤 Update 한 번으로 확인"
+      ],
+      "kind": "component",
+      "baseClass": "CounterStation"
+    },
+    {
+      "class": "TrashStation",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "Station",
+      "create": "new GameObject().AddComponent<TrashStation>()",
+      "members": [
+        {
+          "name": "TryPlace",
+          "names": [
+            "TryPlace"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryPlace(Carryable held)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "접시: 빈 접시 false, 내용물 있으면 ClearContents 후 false(접시는 손에 남음). 그 외: Dispose 후 true"
+        },
+        {
+          "name": "GetAttraction",
+          "names": [
+            "GetAttraction"
+          ],
+          "memberKind": "method",
+          "signature": "float GetAttraction(Carryable)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "탄 재료만 3, 그 외 0"
+        }
+      ],
+      "risks": [
+        "Dispose 경로 Destroy 로그 -> LogAssert"
+      ],
+      "kind": "component",
+      "baseClass": "Station"
+    },
+    {
+      "class": "PlateDispenser",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "Station",
+      "create": "new GameObject().AddComponent<PlateDispenser>()",
+      "inject": [
+        {
+          "field": "_maxPlates",
+          "names": [
+            "_maxPlates"
+          ],
+          "type": "int",
+          "note": "0 이하면 무제한"
+        },
+        {
+          "field": "_availablePlates",
+          "names": [
+            "_availablePlates"
+          ],
+          "type": "int",
+          "note": "Start 에서 채워지므로 Awake/Start 미호출 시 직접 세팅"
+        }
+      ],
+      "members": [
+        {
+          "name": "TryPlace",
+          "names": [
+            "TryPlace"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryPlace(Carryable held)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "빈 접시만 받고 Dispose, 개수 +1(최대 _maxPlates)"
+        },
+        {
+          "name": "TryTake",
+          "names": [
+            "TryTake"
+          ],
+          "memberKind": "method",
+          "signature": "Carryable TryTake()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "ItemFactory.Instance 필요 -> 시험 대상 아님(정적 싱글턴)"
+        },
+        {
+          "name": "ReturnPlate",
+          "names": [
+            "ReturnPlate"
+          ],
+          "memberKind": "method",
+          "signature": "void ReturnPlate()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        },
+        {
+          "name": "HasPlate",
+          "names": [
+            "HasPlate"
+          ],
+          "memberKind": "property",
+          "signature": "bool {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        }
+      ],
+      "risks": [
+        "ItemFactory 싱글턴 의존 경로는 제외"
+      ],
+      "kind": "component",
+      "baseClass": "Station"
+    },
+    {
+      "class": "ServeStation",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "Station",
+      "create": "new GameObject().AddComponent<ServeStation>()",
+      "inject": [
+        {
+          "field": "_session",
+          "names": [
+            "_session"
+          ],
+          "type": "GameSession",
+          "note": ""
+        },
+        {
+          "field": "_plateReturn",
+          "names": [
+            "_plateReturn"
+          ],
+          "type": "PlateDispenser",
+          "note": ""
+        }
+      ],
+      "members": [
+        {
+          "name": "TryPlace",
+          "names": [
+            "TryPlace"
+          ],
+          "memberKind": "method",
+          "signature": "bool TryPlace(Carryable held)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "빈 접시/접시 아님 false, _session null 이면 오류 로그 후 false, 아니면 SubmitPlate 후 plate.Dispose"
+        }
+      ],
+      "risks": [
+        "GameSession._simulation 은 private -> RoundSimulation 을 만들어 리플렉션으로 주입 가능. 판정 자체는 Core 시험(PLATE-001/002)이 이미 다룸"
+      ],
+      "kind": "component",
+      "baseClass": "Station"
+    },
+    {
+      "class": "Station",
+      "namespace": "HellsKitchen.Runtime.Stations",
+      "base": "MonoBehaviour (abstract)",
+      "members": [
+        {
+          "name": "SetHighlighted",
+          "names": [
+            "SetHighlighted"
+          ],
+          "memberKind": "method",
+          "signature": "virtual void SetHighlighted(bool)",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "_highlightVisual 이 있으면 SetActive -> INT-001 의 상태값 확인 가능(시각 자체는 제외)"
+        }
+      ],
+      "inject": [
+        {
+          "field": "_highlightVisual",
+          "names": [
+            "_highlightVisual"
+          ],
+          "type": "GameObject",
+          "note": ""
+        },
+        {
+          "field": "_placePoint",
+          "names": [
+            "_placePoint"
+          ],
+          "type": "Transform",
+          "note": ""
+        }
+      ],
+      "risks": [],
+      "kind": "abstract",
+      "baseClass": "MonoBehaviour"
+    },
+    {
+      "class": "IIntentSource / PlayerIntent",
+      "namespace": "HellsKitchen.Runtime.Inputs",
+      "base": "interface / struct",
+      "create": "class FakeIntentSource : MonoBehaviour, IIntentSource { public PlayerIntent Value; public PlayerIntent Current => Value; public void ConsumePresses() => Value.ConsumePresses(); }",
+      "members": [
+        {
+          "name": "PlayerIntent",
+          "names": [
+            "PlayerIntent"
+          ],
+          "memberKind": "property",
+          "signature": "struct: Move, InteractPressed, WorkHeld, WorkPressed, SprintHeld, DropHeld, DropReleased, CancelPressed",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": ""
+        }
+      ],
+      "risks": [
+        "가짜 공급자는 생성 시험 어셈블리 안에 한 번만 두고 모든 시험이 공유"
+      ],
+      "kind": "interface",
+      "baseClass": "interface"
+    },
+    {
+      "class": "FakeIntentSource",
+      "namespace": "HellsKitchen.Tests.Generated",
+      "base": "MonoBehaviour",
+      "kind": "component",
+      "baseClass": "MonoBehaviour",
+      "create": "GenHelpers.Component<FakeIntentSource>(\"intent\")  // 시험 어셈블리가 제공하는 IIntentSource 구현. 입력 필드를 setField 로 바꾼다",
+      "inject": [
+        {
+          "field": "DropHeld/DropReleased/CancelPressed/InteractPressed/WorkHeld/WorkPressed/SprintHeld",
+          "names": [
+            "DropHeld",
+            "DropReleased",
+            "CancelPressed",
+            "InteractPressed",
+            "WorkHeld",
+            "WorkPressed",
+            "SprintHeld"
+          ],
+          "type": "bool",
+          "note": "PlayerIntent 의 같은 이름 항목. Current 에 그대로 반영된다"
+        },
+        {
+          "field": "MoveX/MoveY",
+          "names": [
+            "MoveX",
+            "MoveY"
+          ],
+          "type": "float",
+          "note": "이동 입력(Move.x, Move.y)"
+        }
+      ],
+      "members": [
+        {
+          "name": "Current",
+          "names": [
+            "Current"
+          ],
+          "memberKind": "property",
+          "signature": "PlayerIntent {get}",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "위 필드로 만든 현재 입력"
+        },
+        {
+          "name": "ConsumePresses",
+          "names": [
+            "ConsumePresses"
+          ],
+          "memberKind": "method",
+          "signature": "void ConsumePresses()",
+          "visibility": "public",
+          "readsTimeDeltaTime": false,
+          "usesPhysicsQuery": false,
+          "note": "'이번 프레임에 눌림/뗌' 플래그(InteractPressed, WorkPressed, DropReleased, CancelPressed)를 지운다"
+        }
+      ],
+      "risks": []
+    }
+  ]
+}

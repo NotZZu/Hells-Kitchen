@@ -1,0 +1,3797 @@
+{
+  "source": "TC_문서_수정본_v2.xlsx / TC 목록",
+  "count": 180,
+  "tcs": [
+    {
+      "id": "MOVE-001",
+      "module": "MOVE",
+      "feature": "걷기",
+      "title": "이동 입력으로 카메라 기준 방향으로 걷는다 (최대 4.2 m/s)",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "라운드 진행 중, 빈손",
+      "steps": "입력 장치별로 이동 입력을 3초간 유지하고, Play 모드 Inspector에서 플레이어 Rigidbody 속도를 확인한다",
+      "data": "입력 장치: WASD / 방향키 / 좌스틱",
+      "expected": "캐릭터가 카메라 기준 입력 방향으로 이동하고, 3초 시점 속도가 4.2 m/s (±0.1)",
+      "note": "입력 장치 3종을 데이터로 묶음(절차 동일)",
+      "requirements": [
+        "FR-MOVE-001"
+      ],
+      "requirements_raw": "FR-MOVE-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-002",
+      "module": "MOVE",
+      "feature": "달리기",
+      "title": "Shift를 유지하면 목표 속도가 8.5 m/s로 오른다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "걷기 이동 입력 중",
+      "steps": "이동 입력을 유지한 채 Shift를 3초간 홀드하고 Inspector에서 속도를 확인한다",
+      "data": "—",
+      "expected": "속도가 4.2 → 8.5 m/s (±0.1)까지 상승한다. Shift를 떼면 목표 속도가 4.2로 돌아간다",
+      "note": null,
+      "requirements": [
+        "FR-MOVE-002"
+      ],
+      "requirements_raw": "FR-MOVE-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-003",
+      "module": "MOVE",
+      "feature": "가속",
+      "title": "정지 상태에서 이동 입력 시 즉시 최고속에 도달하지 않는다 (16 m/s²)",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "정지 상태 (속도 0)",
+      "steps": "① 걷기 입력 시작 후 속도가 4.2에 닿는 시간을 측정 ② 달리기 입력 시작 후 8.5에 닿는 시간을 측정 (화면 녹화 프레임 확인)",
+      "data": "걷기 목표 4.2 m/s → 기대 약 0.26초 / 달리기 목표 8.5 m/s → 기대 약 0.53초",
+      "expected": "최고속 도달 시간이 걷기 0.26초, 달리기 0.53초 (±0.1초). 입력 즉시(1프레임)에 도달하지 않는다",
+      "note": "기존 '인스펙터 값 확인'은 관측 결과가 아니라 설정값 확인이므로 도달 시간으로 변경",
+      "requirements": [
+        "FR-MOVE-003"
+      ],
+      "requirements_raw": "FR-MOVE-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-004",
+      "module": "MOVE",
+      "feature": "관성(걷기)",
+      "title": "걷는 중 입력을 떼면 22 m/s²로 감속해 0.2초 내 정지한다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "걷기 이동 중 (4.2 m/s)",
+      "steps": "이동 입력을 해제하고 속도가 0.1 이하가 될 때까지의 시간을 측정한다",
+      "data": "기대 4.2 / 22 ≈ 0.19초",
+      "expected": "입력 해제 후 0.2초 (±0.05초) 이내에 정지한다",
+      "note": "병합 시 충돌 이력 있음 — 회귀 테스트 (원본 비고 유지)",
+      "requirements": [
+        "FR-MOVE-004"
+      ],
+      "requirements_raw": "FR-MOVE-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-005",
+      "module": "MOVE",
+      "feature": "관성(달리기)",
+      "title": "달리는 중 입력을 떼면 7 m/s²로 감속해 약 1.2초간 미끄러진다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "달리기 중 (8.5 m/s)",
+      "steps": "이동 입력을 해제하고 정지까지의 시간과 미끄러진 거리를 측정한다",
+      "data": "기대 8.5 / 7 ≈ 1.21초",
+      "expected": "정지까지 1.2초 (±0.1초) 걸리며 그 동안 이동 방향으로 미끄러진다",
+      "note": "명세의 '속도 > 4.41 m/s' 경계는 입력만으로 정확히 재현할 수 없어 본 TC에서 제외(수치 경계는 코드 단위 검증 대상)",
+      "requirements": [
+        "FR-MOVE-005"
+      ],
+      "requirements_raw": "FR-MOVE-005",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-006",
+      "module": "MOVE",
+      "feature": "곡선 조향",
+      "title": "방향을 바꿔도 속력은 유지되고 호를 그리며 선회한다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "걷기 이동 중",
+      "steps": "진행 방향과 90° 다른 방향으로 이동 입력을 바꾼다",
+      "data": "—",
+      "expected": "선회 중 속도가 4.2 m/s에서 감소하지 않고, 경로가 꺾임 없이 호를 그린다",
+      "note": null,
+      "requirements": [
+        "FR-MOVE-006"
+      ],
+      "requirements_raw": "FR-MOVE-006",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-007",
+      "module": "MOVE",
+      "feature": "조향 속도",
+      "title": "빠를수록 선회 반경이 커진다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "정지 상태",
+      "steps": "① 걷기 속도에서 180° 반대 입력 ② 달리기 속도에서 180° 반대 입력, 각각 방향 전환 완료 시간 측정",
+      "data": "기대: 걷기 180°/900°/s ≈ 0.2초, 달리기 180°/300°/s ≈ 0.6초",
+      "expected": "달리기의 선회 반경이 걷기보다 크고, 전환 완료 시간이 걷기 약 0.2초 < 달리기 약 0.6초",
+      "note": "기존 절차 '-'와 모호한 결과를 측정 가능한 형태로 보완",
+      "requirements": [
+        "FR-MOVE-007"
+      ],
+      "requirements_raw": "FR-MOVE-007",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-008",
+      "module": "MOVE",
+      "feature": "몸 방향",
+      "title": "몸이 진행 방향을 따라간다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "이동 중",
+      "steps": "방향을 바꾸며 이동하고 캐릭터 정면과 이동 방향을 비교한다",
+      "data": "—",
+      "expected": "캐릭터 시선(정면)이 진행 방향과 일치한다 (오차 ±15°)",
+      "note": "TC ID와 FR ID 번호가 다름 (TC MOVE-008 ↔ FR-MOVE-010)",
+      "requirements": [
+        "FR-MOVE-010"
+      ],
+      "requirements_raw": "FR-MOVE-010",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-009",
+      "module": "MOVE",
+      "feature": "정지 시 회전 불가",
+      "title": "정지 상태에서는 회전 갱신이 일어나지 않는다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "이동 입력 없음, 속도 ≤ 0.1 m/s",
+      "steps": "카메라를 돌리거나 입력 없이 3초간 관찰한다",
+      "data": "—",
+      "expected": "캐릭터가 제자리에서 돌지 않는다 (방향 변화 0°)",
+      "note": "TC ID와 FR ID 번호가 다름 (TC MOVE-009 ↔ FR-MOVE-008)",
+      "requirements": [
+        "FR-MOVE-008"
+      ],
+      "requirements_raw": "FR-MOVE-008",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-011",
+      "module": "MOVE",
+      "feature": "경계 제한",
+      "title": "이동을 막는 설비·경계를 통과하지 못한다",
+      "priority": "High",
+      "technique": "에러추측",
+      "precondition": "이동 입력 중",
+      "steps": "대상을 향해 이동키를 3초간 누른다. 데이터의 항목마다 반복한다 (달리기·걷기 각 1회)",
+      "data": "맵 경계, 조리대, 화로, 쓰레기통, 주문 창구, 접시 선반, 재료 상자, 도마",
+      "expected": "각 대상 앞에서 멈추고 반대편으로 넘어가거나 겹치지 않는다",
+      "note": "맵 경계만 명세에 있음. 설비 충돌은 FR 없음 → 명세 보완 제안 / 원본의 '도마' 누락 항목 추가",
+      "requirements": [
+        "FR-MOVE-009"
+      ],
+      "requirements_raw": "FR-MOVE-009",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "MOVE-012",
+      "module": "MOVE",
+      "feature": "이동 방해 없음",
+      "title": "이동을 막지 않는 오브젝트는 통과해 이동한다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "이동 입력 중",
+      "steps": "대상 오브젝트를 바닥에 두고 그 위를 향해 이동키를 3초간 누른다. 데이터 항목마다 반복한다",
+      "data": "접시, 빵, 고기, 패티, 양상추, 토마토, 양파, 치즈",
+      "expected": "각 오브젝트를 통과해 이동하며 오브젝트가 밀리거나 막히지 않는다",
+      "note": "명세에 없는 동작 → FR 추가 제안",
+      "requirements": [],
+      "requirements_raw": "(FR 없음)",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-001",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "범위 안 설비에 노란 링이 표시된다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "라운드 진행 중",
+      "steps": "설비에 접근했다 멀어지기를 반복한다",
+      "data": "설비: 조리대, 도마, 화로, 쓰레기통, 접시 선반, 주문 창구",
+      "expected": "탐지 범위 안에 들어오면 설비 발치에 노란 링이 표시되고, 벗어나면 사라진다",
+      "note": "설비별 반복(절차 동일)",
+      "requirements": [
+        "FR-INT-001"
+      ],
+      "requirements_raw": "FR-INT-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-002",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "빈손일 때 바닥 물건이 설비보다 우선 집힌다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "빈손. 바닥 물건과 설비가 모두 범위 안",
+      "steps": "E 입력",
+      "data": "바닥 물건 + 설비(조리대 위 재료) 동시 존재",
+      "expected": "바닥 물건이 손에 들리고 설비 위 재료는 그대로 남는다",
+      "note": null,
+      "requirements": [
+        "FR-INT-002"
+      ],
+      "requirements_raw": "FR-INT-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-003",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "1.2 m 이내 바닥 물건은 정면이 아니어도 줍는다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "빈손. 바닥에 물건 1개",
+      "steps": "물건을 캐릭터 뒤쪽에 두고 E 입력",
+      "data": "거리: 뒤쪽 1.1 m / 뒤쪽 1.3 m",
+      "expected": "1.1 m 에서는 주워지고, 1.3 m 에서는 정면이 아니므로 주워지지 않는다",
+      "note": "경계(1.2 m)는 육안 측정 오차가 있어 ±0.1 m 간격으로 확인",
+      "requirements": [
+        "FR-INT-009"
+      ],
+      "requirements_raw": "FR-INT-009",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-004",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "설비 위 물건을 집는다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "빈손. 설비 위에 물건이 있음",
+      "steps": "설비 앞에서 E 입력",
+      "data": "조리대 위 재료 / 도마 위 재료 / 화로 위 재료",
+      "expected": "물건이 손에 들리고 설비는 비워진다",
+      "note": "설비별 반복",
+      "requirements": [
+        "FR-INT-003"
+      ],
+      "requirements_raw": "FR-INT-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-005",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "물건을 빈 설비에 놓는다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "물건 소지. 설비가 비어 있음",
+      "steps": "설비 앞에서 E 입력",
+      "data": "조리대 + 양상추(Raw)",
+      "expected": "설비에 놓이고 손이 빈다",
+      "note": null,
+      "requirements": [
+        "FR-INT-004"
+      ],
+      "requirements_raw": "FR-INT-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-006",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "재료를 접시가 놓인 설비에서 접시로 담는다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "재료 소지. 접시가 놓인 조리대",
+      "steps": "접시가 놓인 조리대에서 E 입력",
+      "data": "빵 → 빈 접시",
+      "expected": "재료가 접시로 이동하고 손이 빈다",
+      "note": null,
+      "requirements": [
+        "FR-INT-005"
+      ],
+      "requirements_raw": "FR-INT-005",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-007",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "접시를 든 상태로 설비 위 재료를 접시로 회수한다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "빈 접시 소지. 재료가 놓인 설비",
+      "steps": "재료가 놓인 조리대에서 E 입력",
+      "data": "조리대 위 빵",
+      "expected": "재료가 접시로 이동하고 접시는 손에 남는다",
+      "note": "[HK-2] 접시 집기·부착 인게임 확인",
+      "requirements": [
+        "FR-INT-006"
+      ],
+      "requirements_raw": "FR-INT-006",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-008",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "한 손에 물건을 하나만 들 수 있다",
+      "priority": "High",
+      "technique": "에러추측",
+      "precondition": "물건 소지 중. 바닥에 다른 물건이 있음",
+      "steps": "다른 물건 근처에서 E 입력",
+      "data": "—",
+      "expected": "두 번째 물건을 들 수 없고 손의 물건은 그대로다",
+      "note": null,
+      "requirements": [
+        "FR-INT-007"
+      ],
+      "requirements_raw": "FR-INT-007",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "INT-009",
+      "module": "INT",
+      "feature": "상호작용",
+      "title": "설비가 받을 수 없는 물건은 거부되고 상태가 변하지 않는다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "물건 소지",
+      "steps": "아래 데이터 조합으로 해당 설비 앞에서 E 입력",
+      "data": "도마 + 빵 / 도마 + 손질 완료 양상추 / 화로 + 양상추(Raw) / 화로 + 탄 패티",
+      "expected": "손과 설비 모두 상태가 변하지 않는다 (물건이 손에 남고 설비는 비어 있다)",
+      "note": "FR-COOK-002와 일부 중복 — 설비별 거부 조합은 본 TC에서 확인",
+      "requirements": [
+        "FR-INT-008"
+      ],
+      "requirements_raw": "FR-INT-008",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-001",
+      "module": "DROP",
+      "feature": "내려놓기",
+      "title": "Q를 0.22초 미만으로 누르면 정면 바닥에 내려놓는다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "물건 소지",
+      "steps": "Q를 짧게(약 0.1초) 눌렀다 뗀다",
+      "data": "0.1초",
+      "expected": "물건이 캐릭터 정면 0.95 m (±0.15) 바닥에 놓인다",
+      "note": null,
+      "requirements": [
+        "FR-DROP-001"
+      ],
+      "requirements_raw": "FR-DROP-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-002",
+      "module": "DROP",
+      "feature": "차징",
+      "title": "Q를 0.22초 이상 유지하면 게이지가 표시된다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "물건 소지",
+      "steps": "① Q를 0.15초 누름 ② Q를 0.4초 이상 유지",
+      "data": "0.15초 / 0.4초",
+      "expected": "①은 게이지 미표시(내려놓기), ②는 화면 하단에 게이지 표시",
+      "note": "0.22초 경계는 사람 입력으로 정밀 재현 불가 → 양쪽 여유값 사용",
+      "requirements": [
+        "FR-DROP-002"
+      ],
+      "requirements_raw": "FR-DROP-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-003",
+      "module": "DROP",
+      "feature": "차징",
+      "title": "게이지가 0.9초에 0→1로 차오르고 색이 노랑→주황으로 변한다",
+      "priority": "Low",
+      "technique": "경계값분석",
+      "precondition": "차징 시작",
+      "steps": "Q를 계속 유지하며 녹화로 게이지 채움 시간을 잰다",
+      "data": "—",
+      "expected": "게이지가 약 0.9초 (±0.15) 후 가득 차고 색이 노랑에서 주황으로 변한다",
+      "note": null,
+      "requirements": [
+        "FR-DROP-003"
+      ],
+      "requirements_raw": "FR-DROP-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-004",
+      "module": "DROP",
+      "feature": "던지기",
+      "title": "차징 후 Q를 떼면 정면 위 24° 방향으로 발사된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "차징 중. 주변에 유도 대상 설비 없음 (2.2 m 초과)",
+      "steps": "① 최소 차징(약 0.25초) 후 해제 ② 최대 차징(1초 이상) 후 해제, 각각 낙하 지점 거리 측정",
+      "data": "중력 −22 m/s², 평지 기준 최소 약 1.2 m / 최대 약 6.6 m",
+      "expected": "발사각이 약 24°로 보이고, 최대 차징이 최소 차징보다 멀리 날아간다 (낙하 거리 ±1 m)",
+      "note": "발사 높이로 실제 거리는 근사값보다 다소 길 수 있음",
+      "requirements": [
+        "FR-DROP-004"
+      ],
+      "requirements_raw": "FR-DROP-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-005",
+      "module": "DROP",
+      "feature": "설비 적재",
+      "title": "던진 물건이 설비 0.55 m 이내를 지나면 적재된다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "물건 소지",
+      "steps": "설비 방향으로 던진다 (유도 효과가 없도록 2.2 m 초과 거리에서 설비를 지나가는 궤적)",
+      "data": "도마 + 양상추(Raw) / 화로 + 패티(Raw) / 빈 조리대 + 재료",
+      "expected": "해당 설비 규칙에 따라 적재되고 비행이 끝난다",
+      "note": "설비별 반복",
+      "requirements": [
+        "FR-DROP-005"
+      ],
+      "requirements_raw": "FR-DROP-005",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-006",
+      "module": "DROP",
+      "feature": "접시 적재",
+      "title": "재료를 접시가 놓인 조리대로 던지면 접시에 담긴다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "재료 소지. 조리대에 빈 접시",
+      "steps": "조리대 방향으로 던진다",
+      "data": "빵 → 접시가 놓인 조리대",
+      "expected": "재료가 접시에 담긴다 (조리대 바닥이 아님)",
+      "note": null,
+      "requirements": [
+        "FR-DROP-006"
+      ],
+      "requirements_raw": "FR-DROP-006",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-007",
+      "module": "DROP",
+      "feature": "적재 거부",
+      "title": "받을 수 없는 설비를 지나면 적재되지 않고 비행을 계속한다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "물건 소지",
+      "steps": "받을 수 없는 설비 위를 통과하는 궤적으로 던진다",
+      "data": "빵 → 도마 / 양상추(Raw) → 화로 위를 통과",
+      "expected": "적재되지 않고 계속 날아가 바닥에 착지한다",
+      "note": null,
+      "requirements": [
+        "FR-DROP-007"
+      ],
+      "requirements_raw": "FR-DROP-007",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-008",
+      "module": "DROP",
+      "feature": "바닥 착지",
+      "title": "비행 중 물건이 높이 0에 닿으면 바닥에 놓여 주울 수 있다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "비행 중",
+      "steps": "설비가 없는 곳으로 던진다 → 착지 후 E 입력",
+      "data": "—",
+      "expected": "바닥에 놓이고 다시 주울 수 있다",
+      "note": null,
+      "requirements": [
+        "FR-DROP-008"
+      ],
+      "requirements_raw": "FR-DROP-008",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-009",
+      "module": "DROP",
+      "feature": "비행 시간 제한",
+      "title": "비행 4초가 지나면 현재 위치 바닥으로 낙하한다",
+      "priority": "Low",
+      "technique": "경계값분석",
+      "precondition": "비행 중 (테스트 설정)",
+      "steps": "Inspector에서 비행 시간 제한을 0.5초로 낮춰(임시) 던진 뒤 값을 원복한다",
+      "data": "제한 0.5초 (임시 변경)",
+      "expected": "설정한 시간이 지나면 물건이 공중에서 바닥으로 떨어진다",
+      "note": "정상 설정(4초)에서는 비행이 1초 안팎이라 재현 불가 → 설정 임시 변경, 테스트 후 원복",
+      "requirements": [
+        "FR-DROP-009"
+      ],
+      "requirements_raw": "FR-DROP-009",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-010",
+      "module": "DROP",
+      "feature": "던지기",
+      "title": "빈손에서 Q를 눌러도 아무 일도 일어나지 않는다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "빈손",
+      "steps": "Q를 길게 누른다",
+      "data": "—",
+      "expected": "게이지가 표시되지 않고 아무 동작도 일어나지 않는다",
+      "note": null,
+      "requirements": [
+        "FR-DROP-010"
+      ],
+      "requirements_raw": "FR-DROP-010",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-011",
+      "module": "DROP",
+      "feature": "차징",
+      "title": "차징 중 F 또는 ESC로 취소하면 물건이 손에 남는다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "차징 중",
+      "steps": "취소 키 입력",
+      "data": "F / ESC",
+      "expected": "게이지가 초기화되고 물건은 손에 남는다",
+      "note": "키별 반복",
+      "requirements": [
+        "FR-DROP-011"
+      ],
+      "requirements_raw": "FR-DROP-011",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-012",
+      "module": "DROP",
+      "feature": "차징",
+      "title": "취소 직후 Q를 유지하다 떼도 던지지 않는다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "차징 취소 직후 Q를 유지 중",
+      "steps": "Q 해제",
+      "data": "—",
+      "expected": "던지지 않고, 다시 눌러야 차징을 시작한다",
+      "note": null,
+      "requirements": [
+        "FR-DROP-012"
+      ],
+      "requirements_raw": "FR-DROP-012",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-013",
+      "module": "DROP",
+      "feature": "유도",
+      "title": "반경 2.2 m 안의 선호 설비 쪽으로 궤도가 휜다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "물건 소지",
+      "steps": "선호 설비(끌림 > 1)에서 1.5 m 떨어져 설비에서 약간 벗어난 방향으로 던진다",
+      "data": "도마 + 양상추(Raw)",
+      "expected": "유도 없을 때(대조 던지기)는 빗나가지만, 유도 시에는 설비에 적재된다",
+      "note": "[HK-2] 유도 2.2 인게임 확인. 대조 던지기와 비교",
+      "requirements": [
+        "FR-DROP-013"
+      ],
+      "requirements_raw": "FR-DROP-013",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-014",
+      "module": "DROP",
+      "feature": "유도",
+      "title": "설비에 가까울수록 보정이 강해진다 (근접도²)",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "물건 소지",
+      "steps": "같은 방향·세기로 설비까지 0.5 m / 1.5 m / 2.0 m 에서 각각 던져 휨 정도를 비교한다",
+      "data": "거리 0.5 / 1.5 / 2.0 m",
+      "expected": "설비에 가까울수록 휨이 크고 2.0 m 에서는 거의 휘지 않는다",
+      "note": "[HK-2] 정량 확인 어려움 → 상대 비교",
+      "requirements": [
+        "FR-DROP-014"
+      ],
+      "requirements_raw": "FR-DROP-014",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-015",
+      "module": "DROP",
+      "feature": "유도",
+      "title": "끌림이 큰 설비는 적재 판정 반경이 최대 1.65배로 넓어진다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "물건 소지",
+      "steps": "끌림이 큰 설비(조리대+접시, 3.2)와 끌림이 작은 설비(재료만 놓인 조리대, 1.1)에 같은 오차로 던진다",
+      "data": "—",
+      "expected": "끌림이 큰 설비 쪽에서 더 큰 오차까지 적재된다",
+      "note": "[HK-2] 상대 비교",
+      "requirements": [
+        "FR-DROP-015"
+      ],
+      "requirements_raw": "FR-DROP-015",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-016",
+      "module": "DROP",
+      "feature": "유도",
+      "title": "설비까지 2.2 m를 넘으면 유도 없이 던진 방향 그대로 날아간다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "물건 소지",
+      "steps": "설비까지 2.5 m 에서 설비를 약간 벗어나는 방향으로 던진다",
+      "data": "거리 2.5 m",
+      "expected": "궤도가 휘지 않고 직선 포물선을 그린다",
+      "note": "[HK-2]",
+      "requirements": [
+        "FR-DROP-016"
+      ],
+      "requirements_raw": "FR-DROP-016",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "DROP-017",
+      "module": "DROP",
+      "feature": "유도",
+      "title": "높이 차이는 거리 계산에서 0.45배로 반영된다",
+      "priority": "Low",
+      "technique": "경계값분석",
+      "precondition": "물건 소지",
+      "steps": "같은 수평 거리에서 조리대 위 / 도마 위 등 높이가 다른 설비로 던져 적재 가능 여부를 비교한다",
+      "data": "—",
+      "expected": "높이가 다소 어긋나도 적재된다",
+      "note": "[HK-2] 수치 검증은 코드 단위로 별도 필요",
+      "requirements": [
+        "FR-DROP-017"
+      ],
+      "requirements_raw": "FR-DROP-017",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-001",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "손질 가능한 Raw 재료는 도마에 놓인다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "재료 소지, 빈 도마",
+      "steps": "도마 앞에서 E 입력",
+      "data": "양상추 / 토마토 / 양파 / 치즈 / 고기 (모두 Raw)",
+      "expected": "도마에 놓인다",
+      "note": "재료별 반복",
+      "requirements": [
+        "FR-COOK-001"
+      ],
+      "requirements_raw": "FR-COOK-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-002",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "손질 불가 또는 Raw가 아닌 재료는 도마에서 거부된다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "재료 소지, 빈 도마",
+      "steps": "도마 앞에서 E 입력",
+      "data": "빵 / 패티(Raw) / 손질 완료 양상추 / 익힌 패티",
+      "expected": "놓이지 않고 손에 남는다",
+      "note": "FR-INT-008과 일부 겹침 — 본 TC는 도마 거부 규칙 전체 확인",
+      "requirements": [
+        "FR-COOK-002"
+      ],
+      "requirements_raw": "FR-COOK-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-003",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "Space를 유지하면 손질 진행도가 시간에 비례해 쌓인다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "도마에 대상 재료",
+      "steps": "Space를 유지하며 완료까지의 시간을 측정한다",
+      "data": "양상추 1.5초 / 토마토 1.6초 / 양파 1.7초 / 치즈 1.4초 / 고기 1.9초",
+      "expected": "각 재료가 표의 시간(±0.2초) 안에 손질 완료된다",
+      "note": "재료별 반복",
+      "requirements": [
+        "FR-COOK-003"
+      ],
+      "requirements_raw": "FR-COOK-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-004",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "Space를 떼면 진행도가 그 자리에 유지된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "손질 중 (진행도 약 50%)",
+      "steps": "Space를 뗀 뒤 3초 기다리고 진행바를 확인한다",
+      "data": "—",
+      "expected": "진행도가 0으로 돌아가지 않고 유지된다",
+      "note": "회귀 확인 대상",
+      "requirements": [
+        "FR-COOK-004"
+      ],
+      "requirements_raw": "FR-COOK-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-005",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "진행도가 남은 재료를 다른 도마에서 이어서 손질한다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "진행도 약 50%의 재료",
+      "steps": "재료를 집어 다른 도마에 놓고 Space를 유지한다",
+      "data": "양상추(1.5초)",
+      "expected": "약 0.75초(남은 분량) 후 손질이 완료된다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-005"
+      ],
+      "requirements_raw": "FR-COOK-005",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-006",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "손질이 끝나면 같은 재료의 Chopped 상태가 된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "도마에 Raw 양상추",
+      "steps": "Space를 완료까지 유지한다",
+      "data": "양상추 / 토마토 / 양파 / 치즈",
+      "expected": "같은 재료가 Chopped 상태가 된다",
+      "note": "재료별 반복",
+      "requirements": [
+        "FR-COOK-006"
+      ],
+      "requirements_raw": "FR-COOK-006",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-007",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "고기는 손질이 끝나면 패티(Raw)로 변환된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "도마에 고기",
+      "steps": "Space를 1.9초 이상 유지한다",
+      "data": "고기",
+      "expected": "고기가 사라지고 패티(Raw)가 도마에 놓인다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-007"
+      ],
+      "requirements_raw": "FR-COOK-007",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-008",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "조리 가능한 Raw 재료는 화로에 놓인다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "패티(Raw) 소지, 빈 화로",
+      "steps": "화로 앞에서 E 입력",
+      "data": "패티(Raw)",
+      "expected": "화로에 놓인다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-008"
+      ],
+      "requirements_raw": "FR-COOK-008",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-009",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "화로의 재료는 6초 후 Cooked가 된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "화로에 패티(Raw)",
+      "steps": "입력 없이 시간을 잰다",
+      "data": "6초",
+      "expected": "6초(±0.5초) 후 Cooked 상태가 된다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-009"
+      ],
+      "requirements_raw": "FR-COOK-009",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-010",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "Cooked 상태로 7초 방치하면 Burned가 된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "화로 위 Cooked 패티",
+      "steps": "입력 없이 시간을 잰다",
+      "data": "6초 시점 / 13초 시점",
+      "expected": "Cooked 이후 7초(±0.5초) 지나면 Burned가 된다",
+      "note": "6초 시점 직후 꺼내면 Cooked 유지 확인",
+      "requirements": [
+        "FR-COOK-010"
+      ],
+      "requirements_raw": "FR-COOK-010",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-011",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "태우기 직전 진행바가 빨간색으로 줄어든다",
+      "priority": "Low",
+      "technique": "동등분할",
+      "precondition": "화로 위 Cooked 패티",
+      "steps": "진행바를 관찰한다",
+      "data": "—",
+      "expected": "진행바가 빨간색이며 시간이 갈수록 줄어든다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-011"
+      ],
+      "requirements_raw": "FR-COOK-011",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-012",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "Burned 재료는 어떤 조작을 해도 상태가 바뀌지 않는다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "Burned 패티",
+      "steps": "화로·도마에 놓고 대기·Space 입력",
+      "data": "화로, 도마",
+      "expected": "상태가 Burned로 유지되고 쓰레기통 외 용도가 없다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-012"
+      ],
+      "requirements_raw": "FR-COOK-012",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-013",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "쓰레기통에 재료를 버리면 소멸하고 손이 빈다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "재료 소지",
+      "steps": "쓰레기통 앞에서 E 입력",
+      "data": "—",
+      "expected": "재료가 사라지고 손이 비어 있다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-013"
+      ],
+      "requirements_raw": "FR-COOK-013",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-014",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "내용물이 있는 접시를 쓰레기통에 버리면 내용물만 소멸한다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "내용물이 담긴 접시 소지",
+      "steps": "쓰레기통 앞에서 E 입력",
+      "data": "—",
+      "expected": "내용물만 사라지고 접시는 손에 남는다",
+      "note": "[HK-2] 접시 부착 연관",
+      "requirements": [
+        "FR-COOK-014"
+      ],
+      "requirements_raw": "FR-COOK-014",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-015",
+      "module": "COOK",
+      "feature": "조리 외형",
+      "title": "손질을 시작하면 손질 중 외형(흩어진 조각)으로 바뀐다",
+      "priority": "Low",
+      "technique": "상태전이",
+      "precondition": "도마에 Raw 양상추",
+      "steps": "Space를 짧게 눌러 진행도 > 0으로 만든다",
+      "data": "양상추",
+      "expected": "모델이 흩어진 조각 형태로 교체된다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-015"
+      ],
+      "requirements_raw": "FR-COOK-015",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-016",
+      "module": "COOK",
+      "feature": "조리 외형",
+      "title": "손질이 끝나면 완성 외형(슬라이스·링)으로 바뀐다",
+      "priority": "Low",
+      "technique": "상태전이",
+      "precondition": "도마에 Raw 재료",
+      "steps": "Space로 완료까지 손질한다",
+      "data": "양상추 슬라이스 / 토마토 슬라이스 / 양파 링",
+      "expected": "모델이 완성 형태로 교체된다",
+      "note": "재료별 반복",
+      "requirements": [
+        "FR-COOK-016"
+      ],
+      "requirements_raw": "FR-COOK-016",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-017",
+      "module": "COOK",
+      "feature": "조리 외형",
+      "title": "진행도가 초기화되면 손질 전 외형으로 복귀한다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "진행도 > 0인 재료",
+      "steps": "진행도 초기화 조건을 만든다",
+      "data": "—",
+      "expected": "손질 전 형태로 되돌아간다",
+      "note": "재현 조건이 명세에 없음(진행도 초기화 경로 불명) → 명세 확인 전까지 Blocked",
+      "requirements": [
+        "FR-COOK-017"
+      ],
+      "requirements_raw": "FR-COOK-017",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-018",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "손질이 끝난 뒤 Space를 유지해도 칼질 동작이 멈춘다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "손질 완료 직후 Space 유지 중",
+      "steps": "완료 후 2초간 Space를 계속 유지한다",
+      "data": "—",
+      "expected": "칼질 동작이 멈추고 설비가 '할 일 없음' 상태가 된다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-018"
+      ],
+      "requirements_raw": "FR-COOK-018",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "COOK-019",
+      "module": "COOK",
+      "feature": "조리",
+      "title": "빈 도마에서 Space를 눌러도 작업 동작이 시작되지 않는다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "빈 도마 앞",
+      "steps": "Space를 누른다",
+      "data": "—",
+      "expected": "칼질 동작이 시작되지 않는다",
+      "note": null,
+      "requirements": [
+        "FR-COOK-019"
+      ],
+      "requirements_raw": "FR-COOK-019",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-001",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "재료 6개까지 담기고 7번째는 담기지 않는다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "접시에 재료 5개",
+      "steps": "재료를 6개째, 7개째 순서로 접시에 담는다",
+      "data": "6번째 / 7번째 재료",
+      "expected": "6번째는 담기고, 7번째는 담기지 않고 손에 남는다",
+      "note": "Core 단위 TC 일부 포함(자동화) — 인게임에서는 담기 거부 후 손/설비 상태 확인",
+      "requirements": [
+        "FR-PLATE-001"
+      ],
+      "requirements_raw": "FR-PLATE-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-002",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "담는 순서가 달라도 같은 구성이면 같은 판정이다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "활성 주문(던전 버거)",
+      "steps": "순서를 달리해 접시를 두 번 구성하고 각각 제출한다",
+      "data": "순서 A: 빵→패티→양상추→토마토 / 순서 B: 토마토→양상추→패티→빵",
+      "expected": "두 경우 모두 주문과 일치로 판정되어 보상이 지급된다",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-002"
+      ],
+      "requirements_raw": "FR-PLATE-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-003",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "재료가 정렬 순서대로 자동 재배치된다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "빈 접시",
+      "steps": "뒤섞인 순서로 재료를 담고 단면을 확인한다",
+      "data": "치즈→빵→토마토→패티",
+      "expected": "아래부터 빵·패티·토마토·치즈 순으로 쌓여 보인다",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-003"
+      ],
+      "requirements_raw": "FR-PLATE-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-004",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "빵만 있어도 윗빵이 덮인다",
+      "priority": "Low",
+      "technique": "동등분할",
+      "precondition": "빈 접시",
+      "steps": "빵만 담는다",
+      "data": "빵 1개",
+      "expected": "최상단에 윗빵 모델이 보인다",
+      "note": "시각 전용",
+      "requirements": [
+        "FR-PLATE-004"
+      ],
+      "requirements_raw": "FR-PLATE-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-005",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "빈 접시는 제출이 거부된다",
+      "priority": "High",
+      "technique": "에러추측",
+      "precondition": "빈 접시 소지",
+      "steps": "주문 창구에서 E 입력",
+      "data": "—",
+      "expected": "제출이 거부되고 접시는 손에 남으며 점수가 변하지 않는다",
+      "note": "SCORE-003과 연계",
+      "requirements": [
+        "FR-PLATE-005"
+      ],
+      "requirements_raw": "FR-PLATE-005",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-006",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "빈 접시를 접시 선반에 반납하면 소멸한다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "빈 접시 소지",
+      "steps": "접시 선반 앞에서 E 입력",
+      "data": "—",
+      "expected": "접시가 사라지고 손이 빈다",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-006"
+      ],
+      "requirements_raw": "FR-PLATE-006",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-007",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "윗빵 높이가 쌓인 재료 두께만큼 올라간다",
+      "priority": "Low",
+      "technique": "동등분할",
+      "precondition": "접시에 빵 1개",
+      "steps": "재료를 하나씩 추가하며 윗빵 높이를 확인한다",
+      "data": "패티→양상추→토마토 순으로 추가",
+      "expected": "추가할 때마다 윗빵이 재료 두께만큼 올라간다",
+      "note": "시각 전용",
+      "requirements": [
+        "FR-PLATE-007"
+      ],
+      "requirements_raw": "FR-PLATE-007",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-008",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "접시가 비었거나 맨 아래가 빵이 아니면 윗빵이 보이지 않는다",
+      "priority": "Low",
+      "technique": "결정테이블",
+      "precondition": "접시",
+      "steps": "① 빈 접시 ② 패티만 담긴 접시를 확인한다",
+      "data": "빈 접시 / 패티만",
+      "expected": "두 경우 모두 윗빵이 보이지 않는다",
+      "note": "시각 전용",
+      "requirements": [
+        "FR-PLATE-008"
+      ],
+      "requirements_raw": "FR-PLATE-008",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-009",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "접시에 담긴 재료는 바닥 물건으로 취급되지 않는다",
+      "priority": "High",
+      "technique": "에러추측",
+      "precondition": "접시에 재료가 담겨 바닥에 있음",
+      "steps": "빈손으로 접시 옆에서 E 입력",
+      "data": "—",
+      "expected": "재료가 아닌 접시가 집힌다 (재료가 따로 뽑히지 않는다)",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-009"
+      ],
+      "requirements_raw": "FR-PLATE-009",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-010",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "내용물이 있는 접시가 설비에 놓였을 때 E로 접시가 집힌다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "내용물이 있는 접시가 조리대 위에 있음, 빈손",
+      "steps": "E 입력",
+      "data": "—",
+      "expected": "재료가 아닌 접시가 집히고 내용물은 접시에 남는다",
+      "note": "[HK-2] 접시 집기 인게임 확인",
+      "requirements": [
+        "FR-PLATE-010"
+      ],
+      "requirements_raw": "FR-PLATE-010",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "PLATE-011",
+      "module": "PLATE",
+      "feature": "접시",
+      "title": "접시에 담긴 재료는 신선도가 줄지 않는다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "접시(재료 포함)를 바닥에 놓음",
+      "steps": "25초 동안 기다린다",
+      "data": "바닥 신선도 20초 기준 +5초",
+      "expected": "재료가 사라지지 않고 게이지도 나타나지 않는다",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-011"
+      ],
+      "requirements_raw": "FR-PLATE-011",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-001",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "바닥 재료의 신선도가 줄고 게이지가 초록→빨강으로 변한다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "빈손",
+      "steps": "재료를 바닥에 내려놓고 18초 / 21초 시점에 확인한다",
+      "data": "바닥 신선도 20초 (전 재료 공통)",
+      "expected": "게이지가 초록에서 빨강으로 변하며 18초에는 남아 있고 21초에는 사라진다",
+      "note": "20초 경계는 ±1초 여유값으로 확인",
+      "requirements": [
+        "FR-FRESH-001"
+      ],
+      "requirements_raw": "FR-FRESH-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-002",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "남은 시간이 0이 되면 재료가 제거된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "바닥에 놓인 재료",
+      "steps": "20초 이상 방치한다",
+      "data": "양상추 / 고기 / 빵",
+      "expected": "재료가 씬에서 사라진다",
+      "note": "재료별 반복",
+      "requirements": [
+        "FR-FRESH-002"
+      ],
+      "requirements_raw": "FR-FRESH-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-003",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "줍거나 설비에 올리면 타이머가 멈추고 남은 시간이 유지된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "바닥에 10초 둔 재료",
+      "steps": "줍거나 조리대에 올려 5초 기다린 뒤 다시 확인한다",
+      "data": "줍기 / 설비에 올리기",
+      "expected": "감소가 멈추고 남은 시간(약 10초)이 유지된다",
+      "note": "방법별 반복",
+      "requirements": [
+        "FR-FRESH-003"
+      ],
+      "requirements_raw": "FR-FRESH-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-004",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "다시 바닥에 놓으면 남은 시간부터 이어서 줄어든다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "남은 시간 약 10초의 재료",
+      "steps": "다시 바닥에 놓고 시간을 잰다",
+      "data": "—",
+      "expected": "약 10초 후 사라진다 (20초로 리셋되지 않는다)",
+      "note": "회귀 확인 대상",
+      "requirements": [
+        "FR-FRESH-004"
+      ],
+      "requirements_raw": "FR-FRESH-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-005",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "바닥에 있고 타이머가 시작되면 재료 위에 게이지가 표시된다",
+      "priority": "Low",
+      "technique": "동등분할",
+      "precondition": "바닥에 놓인 재료",
+      "steps": "재료 위를 관찰한다",
+      "data": "—",
+      "expected": "재료 위에 게이지가 표시된다",
+      "note": null,
+      "requirements": [
+        "FR-FRESH-005"
+      ],
+      "requirements_raw": "FR-FRESH-005",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-006",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "손·설비에 있는 재료는 게이지가 숨겨진다",
+      "priority": "Low",
+      "technique": "동등분할",
+      "precondition": "바닥에서 줍거나 설비에 올린 재료",
+      "steps": "재료를 관찰한다",
+      "data": "손 / 설비",
+      "expected": "게이지가 보이지 않는다",
+      "note": null,
+      "requirements": [
+        "FR-FRESH-006"
+      ],
+      "requirements_raw": "FR-FRESH-006",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "FRESH-007",
+      "module": "FRESH",
+      "feature": "신선도",
+      "title": "바닥의 접시는 상하지 않는다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "접시를 바닥에 놓음",
+      "steps": "25초 이상 방치한다",
+      "data": "20초 + 5초",
+      "expected": "접시는 사라지지 않고 게이지도 없다",
+      "note": null,
+      "requirements": [
+        "FR-FRESH-007"
+      ],
+      "requirements_raw": "FR-FRESH-007",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-001",
+      "module": "UI",
+      "feature": "라운드",
+      "title": "씬 진입 시 라운드가 자동으로 시작된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "—",
+      "steps": "게임 씬에 진입한다",
+      "data": "—",
+      "expected": "라운드가 자동 시작되고 남은 시간이 240초부터 줄어든다",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-001"
+      ],
+      "requirements_raw": "FR-ROUND-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-002",
+      "module": "UI",
+      "feature": "라운드",
+      "title": "240초가 지나면 라운드가 종료되고 활성 주문이 모두 제거된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "라운드 진행 중 (활성 주문 존재)",
+      "steps": "240초 경과를 기다린다 (개발용 타임스케일 사용 가능)",
+      "data": "—",
+      "expected": "라운드가 종료되고 주문이 모두 사라지며 페널티는 없다",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-002"
+      ],
+      "requirements_raw": "FR-ROUND-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-003",
+      "module": "UI",
+      "feature": "라운드",
+      "title": "라운드 종료 시 결과 화면이 표시되고 시뮬레이션이 일시정지된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "라운드 종료 직후",
+      "steps": "결과 화면을 확인하고 주문 UI를 관찰한다",
+      "data": "—",
+      "expected": "결과 화면(골드·별)이 표시되고 주문 타이머가 더 줄지 않는다",
+      "note": "ROUND-008 결함 후보(종료 후 제출 페널티)와 연관",
+      "requirements": [
+        "FR-ROUND-003"
+      ],
+      "requirements_raw": "FR-ROUND-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-004",
+      "module": "UI",
+      "feature": "라운드",
+      "title": "다시 도전 버튼으로 점수·주문이 초기화되고 재시작된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "결과 화면",
+      "steps": "다시 도전 버튼을 누른다",
+      "data": "—",
+      "expected": "골드 0·콤보 0·주문 없음으로 초기화되고 240초부터 다시 시작한다",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-004"
+      ],
+      "requirements_raw": "FR-ROUND-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-005",
+      "module": "UI",
+      "feature": "점수",
+      "title": "정답 접시를 주문 창구에 제출하면 골드가 오르고 접시가 회수된다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "활성 주문 존재, 해당 구성 접시 소지",
+      "steps": "주문 창구에서 E 입력",
+      "data": "던전 버거 (빵+Cooked 패티+양상추+토마토)",
+      "expected": "보상만큼 골드 증가, 콤보 +1, 접시 회수",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-006",
+      "module": "UI",
+      "feature": "점수",
+      "title": "일치하지 않는 접시를 제출하면 골드 −5, 콤보 0, 접시 회수",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "골드 ≥ 5, 콤보 > 0",
+      "steps": "주문과 다른 구성의 접시 제출",
+      "data": "빵만 담긴 접시",
+      "expected": "골드 −5, 콤보 0, 접시 회수",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-007",
+      "module": "UI",
+      "feature": "점수",
+      "title": "주문이 만료되면 골드 −10, 콤보 0이고 카드가 사라진다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "활성 주문 존재",
+      "steps": "제한시간 경과까지 방치",
+      "data": "던전 버거 175s (타임스케일 사용 가능)",
+      "expected": "카드가 사라지고 골드 −10, 콤보 0",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-004"
+      ],
+      "requirements_raw": "FR-SCORE-004",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "UI-008",
+      "module": "UI",
+      "feature": "점수",
+      "title": "결과 화면의 별이 기준(60/110/170)에 맞게 표시된다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "라운드 종료",
+      "steps": "최종 골드를 59 / 60 / 110 / 170 근처로 맞추기는 어려우므로 개발자 도구로 골드를 설정하고 종료한다",
+      "data": "59 / 60 / 110 / 170",
+      "expected": "59→0성, 60→1성, 110→2성, 170→3성",
+      "note": "별점 기준은 FUNCTIONAL_SPEC §4.4 — 자동화 TC(SCORE)와 중복되는 부분은 UI 표시만 확인",
+      "requirements": [
+        "FR-ROUND-003"
+      ],
+      "requirements_raw": "FR-ROUND-003",
+      "automation_kind": "수동(인게임)",
+      "automation": "수동(인게임)"
+    },
+    {
+      "id": "RECIPE-001",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "변형이 없으면(null) 기본 구성이 그대로 요구된다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "변형 목록을 null로 Resolve를 호출한다",
+      "data": "변형=null",
+      "expected": "요구 재료는 기본 4개 그대로이다(총 4개)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_변형이_null이면_기본_구성을_돌려준다"
+    },
+    {
+      "id": "RECIPE-002",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "변형 목록이 비어 있으면 기본 구성이 그대로 요구된다",
+      "priority": "Medium",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "빈 변형 목록으로 Resolve를 호출한다",
+      "data": "변형=[]",
+      "expected": "요구 재료는 기본 4개 그대로이다",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_변형이_빈_목록이면_기본_구성을_돌려준다"
+    },
+    {
+      "id": "RECIPE-003",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "추가 변형이면 재료가 하나 늘어난다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "'치즈 추가' 변형으로 Resolve를 호출한다",
+      "data": "Add 치즈(Chopped)",
+      "expected": "총 5개, 치즈(Chopped) 1개가 포함된다",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_추가_변형이면_재료가_하나_늘어난다"
+    },
+    {
+      "id": "RECIPE-004",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "이미 있는 재료를 추가하면 개수가 2가 된다",
+      "priority": "Medium",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "'양상추 추가' 변형으로 Resolve를 호출한다",
+      "data": "Add 양상추(Chopped)",
+      "expected": "양상추(Chopped) 2개, 총 5개이다",
+      "note": "접시는 같은 재료를 중복해서 담을 수 있다",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_이미_있는_재료를_추가하면_개수가_2가_된다"
+    },
+    {
+      "id": "RECIPE-005",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "제거 변형이면 해당 재료가 빠진다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "'양상추 빼기' 변형으로 Resolve를 호출한다",
+      "data": "Remove 양상추(Chopped)",
+      "expected": "총 3개, 양상추(Chopped) 0개이다",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_제거_변형이면_해당_재료가_빠진다"
+    },
+    {
+      "id": "RECIPE-006",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "레시피에 없는 재료를 제거하라는 변형은 조용히 무시된다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "기본 구성에 없는 '양파 빼기' 변형으로 Resolve를 호출한다",
+      "data": "Remove 양파(Chopped)",
+      "expected": "기본 구성 4개 그대로이다(예외 없음)",
+      "note": "코드 주석: 레시피가 바뀌어도 저장된 주문 데이터가 깨지지 않게 하려는 의도",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_레시피에_없는_재료를_제거하면_조용히_무시한다"
+    },
+    {
+      "id": "RECIPE-007",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "가공 상태가 다른 재료를 제거하라는 변형은 무시된다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "레시피엔 양상추(Chopped)가 있고, 변형은 양상추(Raw)를 뺀다",
+      "data": "Remove 양상추(Raw)",
+      "expected": "양상추(Chopped)는 그대로 남아 기본 4개이다",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_가공_상태가_다른_재료를_제거하면_무시한다"
+    },
+    {
+      "id": "RECIPE-008",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "추가했던 재료를 같은 변형 목록에서 제거하면 기본 구성이 된다",
+      "priority": "Low",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "[치즈 추가, 치즈 빼기] 순서로 Resolve를 호출한다",
+      "data": "Add 치즈 → Remove 치즈",
+      "expected": "기본 구성 4개 그대로이다",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_추가한_재료를_같은_변형_목록에서_제거하면_기본_구성이_된다"
+    },
+    {
+      "id": "RECIPE-009",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "하나뿐인 재료를 두 번 제거하면 두 번째는 무시된다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "[양상추 빼기, 양상추 빼기]로 Resolve를 호출한다",
+      "data": "Remove 양상추 ×2",
+      "expected": "양상추 0개, 총 3개이다(토마토까지 사라지지 않는다)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_하나뿐인_재료를_두_번_제거하면_두번째는_무시한다"
+    },
+    {
+      "id": "RECIPE-010",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "Resolve해도 원본 레시피 데이터는 바뀌지 않는다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "[치즈 추가, 토마토 빼기]로 Resolve를 호출한 뒤 원본 레시피를 확인한다",
+      "data": "Add 치즈, Remove 토마토",
+      "expected": "원본 필수 재료는 여전히 4개이고 기본 요구 집합도 4개이다",
+      "note": "순수 함수 계약",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_해석해도_원본_레시피는_바뀌지_않는다"
+    },
+    {
+      "id": "RECIPE-011",
+      "module": "RECIPE",
+      "feature": "레시피 판정",
+      "title": "(특성화) Resolver는 제거 가능 목록을 검사하지 않는다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "'빵 빼기' 변형으로 Resolve를 호출한다",
+      "data": "Remove 빵",
+      "expected": "빵 0개가 된다 — 제거 가능 여부 판단은 OrderBoard의 변형 생성 책임이다(ORDER-023)",
+      "note": "현재 동작을 기록하는 시험. Resolver가 검사하도록 바뀌면 이 TC를 갱신한다",
+      "requirements": [
+        "FR-ORDER-010"
+      ],
+      "requirements_raw": "FR-ORDER-010",
+      "automation_kind": "NUnit",
+      "automation": "RecipeResolverTests: Resolve_제거_가능_목록에_없는_재료도_변형이_오면_제거한다_판단은_OrderBoard_몫"
+    },
+    {
+      "id": "DIFF-001",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도 0에서는 시작값이고 변형 확률은 0이다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "스테이지 값: 간격 28→14, 시간배율 1→0.72, 변형 0.35 이후 최대 0.6, 동시 주문 3",
+      "steps": "진행도 0으로 Evaluate한다",
+      "data": "진행도=0",
+      "expected": "간격 28, 시간배율 1.0, 변형 확률 0, 동시 주문 3",
+      "note": "값은 FUNCTIONAL_SPEC 4.3",
+      "requirements": [
+        "FR-ORDER-007"
+      ],
+      "requirements_raw": "FR-ORDER-007",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도_0에서는_시작값이고_변형_확률은_0이다"
+    },
+    {
+      "id": "DIFF-002",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도 1에서는 종료값이다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도 1로 Evaluate한다",
+      "data": "진행도=1",
+      "expected": "간격 14, 시간배율 0.72, 변형 확률 0.6",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도_1에서는_종료값이다"
+    },
+    {
+      "id": "DIFF-003",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도 0.349에서는 변형 확률이 0이다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도 0.349로 Evaluate한다",
+      "data": "진행도=0.349",
+      "expected": "변형 확률 = 0",
+      "note": "스펙 §6 경계값 표(변형 등장): 인접 무효값",
+      "requirements": [
+        "FR-ORDER-007"
+      ],
+      "requirements_raw": "FR-ORDER-007",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도_0점349에서는_변형_확률이_0이다"
+    },
+    {
+      "id": "DIFF-004",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도 정확히 0.35에서는 변형 확률이 0이다(경계 포함)",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도 0.35로 Evaluate한다",
+      "data": "진행도=0.35",
+      "expected": "변형 확률 = 0 (스펙: '진행도 ≤ 0.35 변형 미적용')",
+      "note": "스펙 §6 경계값 표: 경계값",
+      "requirements": [
+        "FR-ORDER-007"
+      ],
+      "requirements_raw": "FR-ORDER-007",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도_정확히_0점35에서는_변형_확률이_0이다_경계_포함"
+    },
+    {
+      "id": "DIFF-005",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도 0.351에서는 변형 확률이 0보다 크다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도 0.351로 Evaluate한다",
+      "data": "진행도=0.351",
+      "expected": "변형 확률 > 0 이고 약 0.000923 (±0.0001)",
+      "note": "스펙 §6 경계값 표: 인접 유효값. (0.351-0.35)/0.65×0.6",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도_0점351에서는_변형_확률이_0보다_크다"
+    },
+    {
+      "id": "DIFF-006",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도 0.5에서는 선형 보간 값이다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도 0.5로 Evaluate한다",
+      "data": "진행도=0.5",
+      "expected": "간격 21, 시간배율 0.86, 변형 확률 약 0.13846 (±0.0001)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도_0점5에서는_선형_보간_값이다"
+    },
+    {
+      "id": "DIFF-007",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "범위 밖 진행도는 0과 1로 보정된다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "각 진행도로 Evaluate한다",
+      "data": "진행도: -0.1, -100 → 0 구간 / 1.5, 100 → 1 구간",
+      "expected": "-0.1·-100은 진행도 0과 같은 값(28 / 1.0 / 0), 1.5·100은 진행도 1과 같은 값(14 / 0.72 / 0.6)",
+      "note": "데이터 기반 TC: 입력 4행",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_범위_밖_진행도는_0과_1로_보정된다(-0.1f,28.0f,1.0f,0.0f), Evaluate_범위_밖_진행도는_0과_1로_보정된다(-100.0f,28.0f,1.0f,0.0f), Evaluate_범위_밖_진행도는_0과_1로_보정된다(1.5f,14.0f,0.72f,0.6f), Evaluate_범위_밖_진행도는_0과_1로_보정된다(100.0f,14.0f,0.72f,0.6f)"
+    },
+    {
+      "id": "DIFF-008",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "동시 주문 상한은 진행도와 무관하게 고정이다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도마다 Evaluate한다",
+      "data": "진행도: 0, 0.35, 0.5, 1",
+      "expected": "모든 경우 동시 주문 상한 = 3",
+      "note": "스펙 4.3 '고정'. 코드 기본값은 4이므로 스테이지 데이터가 3으로 덮어쓰는지 별도 확인 필요(§비고)",
+      "requirements": [
+        "FR-ORDER-003"
+      ],
+      "requirements_raw": "FR-ORDER-003",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_동시_주문_상한은_진행도와_무관하게_고정이다(0.0f), Evaluate_동시_주문_상한은_진행도와_무관하게_고정이다(0.35f), Evaluate_동시_주문_상한은_진행도와_무관하게_고정이다(0.5f), Evaluate_동시_주문_상한은_진행도와_무관하게_고정이다(1.0f)"
+    },
+    {
+      "id": "DIFF-009",
+      "module": "DIFF",
+      "feature": "난이도 곡선",
+      "title": "진행도가 늘면 간격·시간배율은 줄기만, 변형 확률은 늘기만 한다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "위와 같은 스테이지 값",
+      "steps": "진행도 0에서 1까지 0.01씩 올리며 Evaluate한다",
+      "data": "101개 지점",
+      "expected": "간격·시간배율은 증가하지 않고 변형 확률은 감소하지 않는다(단조성)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "DifficultySettingsTests: Evaluate_진행도가_늘어도_간격과_시간배율은_줄기만_하고_변형_확률은_늘기만_한다"
+    },
+    {
+      "id": "ORDER-001",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "첫 주문 지연 8초 직전에는 주문이 없다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "주문판 생성, Prime(지연 8초)",
+      "steps": "7.5초를 Tick한다",
+      "data": "지연=8초, 경과=7.5초",
+      "expected": "활성 주문 0건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-001"
+      ],
+      "requirements_raw": "FR-ORDER-001",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_첫_주문_지연_8초_직전에는_주문이_없다"
+    },
+    {
+      "id": "ORDER-002",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "첫 주문 지연 8초가 되면 주문이 하나 생긴다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "주문판 생성, Prime(지연 8초)",
+      "steps": "8.0초를 Tick한다",
+      "data": "지연=8초, 경과=8.0초",
+      "expected": "활성 주문 1건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-001"
+      ],
+      "requirements_raw": "FR-ORDER-001",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_첫_주문_지연_8초가_되면_주문이_하나_생긴다"
+    },
+    {
+      "id": "ORDER-003",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "지연이 0이면 즉시 하나 띄우고 다음 틱에 또 뜨지 않는다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "주문판 생성, 스폰 간격 28초",
+      "steps": "Prime(지연 0) 후 1초를 Tick한다",
+      "data": "지연=0",
+      "expected": "Prime 직후 1건, 1초 뒤에도 1건",
+      "note": "코드 주석: 타이머를 0으로 두면 바로 다음 틱에 또 스폰되는 문제 방지",
+      "requirements": [
+        "FR-ORDER-001"
+      ],
+      "requirements_raw": "FR-ORDER-001",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Prime_지연이_0이면_즉시_하나_띄우고_다음_틱에_또_뜨지_않는다"
+    },
+    {
+      "id": "ORDER-004",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "스폰 간격이 지나면 다음 주문이 생긴다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "Prime(지연 0) 완료, 스폰 간격 28초",
+      "steps": "27.5초 Tick 후 0.5초를 더 Tick한다",
+      "data": "간격=28초",
+      "expected": "27.5초 시점 1건, 28초 시점 2건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-002"
+      ],
+      "requirements_raw": "FR-ORDER-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_스폰_간격이_지나면_다음_주문이_생긴다"
+    },
+    {
+      "id": "ORDER-005",
+      "module": "ORDER",
+      "feature": "주문 상한",
+      "title": "활성 주문이 상한 3건이면 간격이 지나도 새 주문이 생기지 않는다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "활성 주문 3건(상한 3)",
+      "steps": "스폰 간격(28초)을 Tick한다",
+      "data": "상한=3",
+      "expected": "활성 주문은 3건 그대로이다",
+      "note": "스펙 §6: 동시 주문 2(생성 가능) / 3(생성 보류)",
+      "requirements": [
+        "FR-ORDER-003"
+      ],
+      "requirements_raw": "FR-ORDER-003",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_활성_주문이_상한_3건이면_스폰_간격이_지나도_새_주문이_생기지_않는다"
+    },
+    {
+      "id": "ORDER-006",
+      "module": "ORDER",
+      "feature": "주문 상한",
+      "title": "보류된 뒤 자리가 나면 1초 후 다시 시도해 생성한다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "상한(3건)에서 보류된 직후, 주문 하나를 완료해 자리를 낸다",
+      "steps": "0.5초, 다시 0.5초를 Tick한다",
+      "data": "재시도 대기=1초",
+      "expected": "0.5초 뒤 2건, 1초 뒤 3건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-003"
+      ],
+      "requirements_raw": "FR-ORDER-003",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_상한으로_보류된_뒤_자리가_나면_1초_후_다시_시도해_생성한다"
+    },
+    {
+      "id": "ORDER-007",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "주문의 남은 시간은 경과한 만큼 줄어든다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "주문 1건(제한시간 175초)",
+      "steps": "10초를 Tick한다",
+      "data": "175초 - 10초",
+      "expected": "남은 시간 165초",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-004"
+      ],
+      "requirements_raw": "FR-ORDER-004",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_주문의_남은_시간이_경과한_만큼_줄어든다"
+    },
+    {
+      "id": "ORDER-008",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "남은 시간은 0 아래로 내려가지 않는다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "제한시간 10초 주문 1건",
+      "steps": "100초를 Tick한다",
+      "data": "경과 100초(제한 10초 초과)",
+      "expected": "남은 시간 정확히 0, 만료 상태",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-004"
+      ],
+      "requirements_raw": "FR-ORDER-004",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_한참_지나도_남은_시간은_0_아래로_내려가지_않는다"
+    },
+    {
+      "id": "ORDER-009",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "남은 시간이 0.25초일 때는 주문이 아직 유효하다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "제한시간 10초 주문 1건",
+      "steps": "9.75초를 Tick한다",
+      "data": "남은 시간 0.25초",
+      "expected": "활성 주문 1건, 남은 시간 0.25초",
+      "note": "스펙 §6: 주문 만료 경계(인접 유효값)",
+      "requirements": [
+        "FR-ORDER-005"
+      ],
+      "requirements_raw": "FR-ORDER-005",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_남은_시간이_0점25초일_때는_주문이_아직_유효하다"
+    },
+    {
+      "id": "ORDER-010",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "남은 시간이 정확히 0이 되면 주문이 제거된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "제한시간 10초 주문, 9.75초 경과",
+      "steps": "0.25초를 더 Tick한다",
+      "data": "남은 시간 0",
+      "expected": "활성 주문 0건",
+      "note": "스펙 §6: 주문 만료 경계값",
+      "requirements": [
+        "FR-ORDER-005"
+      ],
+      "requirements_raw": "FR-ORDER-005",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_남은_시간이_정확히_0이_되면_주문이_제거된다"
+    },
+    {
+      "id": "ORDER-011",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "시간 만료로 제거되면 이유가 Expired로 통지된다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "제한시간 10초 주문 1건, 제거 통지 구독",
+      "steps": "10초를 Tick한다",
+      "data": "—",
+      "expected": "통지 1건, 이유 = Expired",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-005"
+      ],
+      "requirements_raw": "FR-ORDER-005",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_시간_만료로_제거되면_이유가_Expired로_통지된다"
+    },
+    {
+      "id": "ORDER-012",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "주문을 완료하면 제거되고 이유가 Served로 통지된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "활성 주문 1건, 제거 통지 구독",
+      "steps": "Complete(주문)을 호출한다",
+      "data": "—",
+      "expected": "true 반환, 활성 0건, 이유 = Served",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Complete_활성_주문을_완료하면_제거되고_이유가_Served로_통지된다"
+    },
+    {
+      "id": "ORDER-013",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "Clear하면 모든 주문이 이유 Cleared로 제거된다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "활성 주문 3건, 제거 통지 구독",
+      "steps": "Clear()를 호출한다",
+      "data": "—",
+      "expected": "활성 0건, 통지 3건 모두 Cleared",
+      "note": "라운드 종료 시 페널티 없는 제거의 근거",
+      "requirements": [
+        "FR-ROUND-002"
+      ],
+      "requirements_raw": "FR-ROUND-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Clear_활성_주문을_모두_제거하고_이유는_Cleared다"
+    },
+    {
+      "id": "ORDER-014",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "스폰이 허용되지 않으면 간격이 지나도 주문이 생기지 않는다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "활성 주문 1건, 간격 28초",
+      "steps": "allowSpawn=false로 28초를 Tick한다",
+      "data": "allowSpawn=false",
+      "expected": "활성 주문 1건 그대로",
+      "note": "라운드 종료 임박 시 RoundSimulation이 false를 넘긴다(ROUND-012~014)",
+      "requirements": [
+        "FR-ORDER-006"
+      ],
+      "requirements_raw": "FR-ORDER-006",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_스폰이_허용되지_않으면_간격이_지나도_주문이_생기지_않는다"
+    },
+    {
+      "id": "ORDER-015",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "변형 확률이 0이면 50건을 만들어도 변형이 붙지 않는다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "변형 확률 0, 시드 고정 난수(42), 동시 상한 1000",
+      "steps": "1초 간격으로 50건을 생성한다",
+      "data": "50건",
+      "expected": "모든 주문에 변형 없음",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-007"
+      ],
+      "requirements_raw": "FR-ORDER-007",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형_확률이_0이면_50건을_만들어도_변형이_붙지_않는다"
+    },
+    {
+      "id": "ORDER-016",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "변형 굴림이 성공하면 추가 변형 1건이 붙는다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "난수 고정: 확률 굴림 0.0, 추가/제거 굴림 0.0(<0.5), 추가 후보 0번(치즈)",
+      "steps": "변형 확률 1.0으로 주문을 생성한다",
+      "data": "굴림=0.0",
+      "expected": "변형 1건: Add 치즈(Chopped)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형_확률_굴림이_성공하면_추가_변형_1건이_붙는다"
+    },
+    {
+      "id": "ORDER-017",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "추가/제거 굴림이 0.5 이상이면 제거 변형이 붙는다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "난수 고정: 확률 굴림 0.0, 추가/제거 굴림 0.9, 제거 후보 0번(양상추)",
+      "steps": "변형 확률 1.0으로 주문을 생성한다",
+      "data": "굴림=0.9",
+      "expected": "변형 1건: Remove 양상추(Chopped)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형_추가_제거_굴림이_0점5_이상이면_제거_변형이_붙는다"
+    },
+    {
+      "id": "ORDER-018",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "변형 굴림이 확률과 정확히 같으면 변형이 붙지 않는다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "변형 확률 0.25, 확률 굴림 0.25",
+      "steps": "주문을 생성한다",
+      "data": "굴림=0.25 / 확률=0.25",
+      "expected": "변형 없음(굴림 ≥ 확률이면 미적용)",
+      "note": "경계: 굴림 == 확률",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형_확률_굴림이_확률과_같으면_변형이_붙지_않는다"
+    },
+    {
+      "id": "ORDER-019",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "변형 굴림이 확률보다 조금 작으면 변형이 붙는다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "변형 확률 0.25, 확률 굴림 0.2499",
+      "steps": "주문을 생성한다",
+      "data": "굴림=0.2499 / 확률=0.25",
+      "expected": "변형 1건 붙음",
+      "note": "경계: 굴림 < 확률",
+      "requirements": [
+        "FR-ORDER-008"
+      ],
+      "requirements_raw": "FR-ORDER-008",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형_확률_굴림이_확률보다_조금_작으면_변형이_붙는다"
+    },
+    {
+      "id": "ORDER-020",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "변형이 붙으면 제한시간은 ×1.12, 보상은 +5이다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "난수 고정으로 변형 1건 부여, 시간배율 1.0",
+      "steps": "주문을 생성한다",
+      "data": "던전 버거(보상 22, 제한 175초)",
+      "expected": "제한시간 196초(±0.01), 보상 27",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-009"
+      ],
+      "requirements_raw": "FR-ORDER-009",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형이_붙으면_제한시간은_1점12배_보상은_5_늘어난다"
+    },
+    {
+      "id": "ORDER-021",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "변형 보정 ×1.12는 난이도 시간배율에 곱해진다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "난수 고정으로 변형 1건 부여, 시간배율 0.72",
+      "steps": "주문을 생성한다",
+      "data": "175 × 0.72 × 1.12",
+      "expected": "제한시간 141.12초(±0.01)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-009"
+      ],
+      "requirements_raw": "FR-ORDER-009",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형이_붙으면_난이도_시간배율에_1점12배가_곱해진다"
+    },
+    {
+      "id": "ORDER-022",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "변형이 없으면 제한시간은 기본값×시간배율, 보상은 기본 보상이다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "변형 확률 0, 시간배율 0.72",
+      "steps": "주문을 생성한다",
+      "data": "던전 버거",
+      "expected": "제한시간 126초(±0.01), 보상 22",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-002"
+      ],
+      "requirements_raw": "FR-ORDER-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 변형이_없으면_제한시간은_기본값_곱하기_시간배율이고_보상은_기본_보상이다"
+    },
+    {
+      "id": "ORDER-023",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "던전 버거의 제거 변형은 양상추·토마토만 대상으로 하고 빵·패티는 제외된다",
+      "priority": "High",
+      "technique": "에러추측",
+      "precondition": "변형 확률 1.0, 시드 고정 난수(1234), 동시 상한 1000",
+      "steps": "500건을 생성하고 모든 변형을 검사한다",
+      "data": "500건",
+      "expected": "제거 변형 대상은 양상추·토마토뿐이며 빵·패티는 한 번도 없다. 제거·추가 변형이 각각 1건 이상 나온다(시험이 의미 있음을 확인)",
+      "note": "확률 시험을 시드 고정으로 재현 가능하게 만든 예",
+      "requirements": [
+        "FR-ORDER-010"
+      ],
+      "requirements_raw": "FR-ORDER-010",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 던전_버거에서_제거_변형은_양상추_토마토만_대상으로_하고_빵_패티는_제외한다"
+    },
+    {
+      "id": "ORDER-024",
+      "module": "ORDER",
+      "feature": "주문 변형",
+      "title": "제거 가능 재료가 없는 레시피는 변형이 붙어도 항상 추가 변형이다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "고블린 치즈버거(제거 가능 없음), 변형 확률 1.0, 시드 고정 난수",
+      "steps": "200건을 생성한다",
+      "data": "200건",
+      "expected": "모든 주문에 변형이 정확히 1건이고 종류는 모두 Add",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-010"
+      ],
+      "requirements_raw": "FR-ORDER-010",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 제거_가능_재료가_없는_레시피는_변형이_붙어도_항상_추가_변형이다"
+    },
+    {
+      "id": "ORDER-025",
+      "module": "ORDER",
+      "feature": "주문 매칭",
+      "title": "같은 구성의 주문이 여럿이면 남은 시간이 가장 적은 주문이 선택된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "주문 A(남은 147초)와 나중에 떠서 시간배율이 작았던 주문 B(남은 87.5초). 구성은 같고 B가 목록 뒤쪽에 있음",
+      "steps": "던전 버거 접시로 FindMatch를 호출한다",
+      "data": "A 147초 / B 87.5초",
+      "expected": "B가 선택된다(목록 순서가 아니라 남은 시간 기준)",
+      "note": "'먼저 뜬 주문'이 아니라 '가장 급한 주문'임을 구분하기 위한 설계",
+      "requirements": [
+        "FR-ORDER-011"
+      ],
+      "requirements_raw": "FR-ORDER-011",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: FindMatch_같은_구성이_여럿이면_남은_시간이_가장_적은_주문을_고른다"
+    },
+    {
+      "id": "ORDER-026",
+      "module": "ORDER",
+      "feature": "주문 매칭",
+      "title": "가장 급한 주문을 완료하면 다음으로 급한 주문이 선택된다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "위와 같은 A, B 주문",
+      "steps": "B를 Complete한 뒤 FindMatch를 호출한다",
+      "data": "—",
+      "expected": "A가 선택된다",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-011"
+      ],
+      "requirements_raw": "FR-ORDER-011",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: FindMatch_가장_급한_주문을_완료하면_다음으로_급한_주문이_골라진다"
+    },
+    {
+      "id": "ORDER-027",
+      "module": "ORDER",
+      "feature": "주문 매칭",
+      "title": "재료가 하나 부족한 접시는 주문과 일치하지 않는다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 주문 1건",
+      "steps": "토마토가 빠진 접시로 FindMatch를 호출한다",
+      "data": "빵+패티+양상추",
+      "expected": "null(일치 없음)",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: FindMatch_재료가_하나_부족한_접시는_일치하지_않는다"
+    },
+    {
+      "id": "ORDER-028",
+      "module": "ORDER",
+      "feature": "주문 매칭",
+      "title": "재료가 하나 더 들어간 접시는 주문과 일치하지 않는다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 주문 1건",
+      "steps": "치즈가 더 들어간 접시로 FindMatch를 호출한다",
+      "data": "빵+패티+양상추+토마토+치즈",
+      "expected": "null(일치 없음)",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: FindMatch_재료가_하나_더_들어간_접시는_일치하지_않는다"
+    },
+    {
+      "id": "ORDER-029",
+      "module": "ORDER",
+      "feature": "주문 매칭",
+      "title": "가공 상태가 다른 재료가 섞인 접시는 일치하지 않는다",
+      "priority": "High",
+      "technique": "결정테이블",
+      "precondition": "던전 버거 주문 1건",
+      "steps": "(a) 손질 안 한 양상추, (b) 탄 패티가 든 접시로 FindMatch를 호출한다",
+      "data": "양상추(Raw) / 패티(Burned)",
+      "expected": "두 경우 모두 null",
+      "note": "탄 재료로는 주문을 완성할 수 없다",
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: FindMatch_가공_상태가_다른_재료가_섞인_접시는_일치하지_않는다"
+    },
+    {
+      "id": "ORDER-030",
+      "module": "ORDER",
+      "feature": "주문 매칭",
+      "title": "null이나 빈 접시는 일치하는 주문이 없다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "주문 1건",
+      "steps": "FindMatch(null), FindMatch(빈 집합)을 호출한다",
+      "data": "null / 빈 집합",
+      "expected": "둘 다 null",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-003"
+      ],
+      "requirements_raw": "FR-SCORE-003",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: FindMatch_null_또는_빈_접시는_일치하는_주문이_없다"
+    },
+    {
+      "id": "ORDER-031",
+      "module": "ORDER",
+      "feature": "주문 방어",
+      "title": "null·없는 주문·이미 완료한 주문의 Complete는 false이다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "주문 1건",
+      "steps": "Complete(null), Complete(주문), Complete(같은 주문 다시)를 차례로 호출한다",
+      "data": "—",
+      "expected": "false / true / false",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Complete_null_없는_주문_이미_완료한_주문은_false를_돌려준다"
+    },
+    {
+      "id": "ORDER-032",
+      "module": "ORDER",
+      "feature": "주문 방어",
+      "title": "생성자는 빈 메뉴와 null 난수를 거부한다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "—",
+      "steps": "빈 메뉴, null 메뉴, null 난수로 OrderBoard를 생성한다",
+      "data": "—",
+      "expected": "각각 ArgumentException / ArgumentException / ArgumentNullException",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-002"
+      ],
+      "requirements_raw": "FR-ORDER-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 생성자는_빈_메뉴와_null_난수를_거부한다"
+    },
+    {
+      "id": "ORDER-033",
+      "module": "ORDER",
+      "feature": "주문 수명",
+      "title": "경과 시간이 0 이하이면 아무것도 변하지 않는다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "주문 1건(175초), 스폰 간격 28초",
+      "steps": "Tick(0), Tick(-100) 후 27.5초를 Tick한다",
+      "data": "0, 음수",
+      "expected": "남은 시간 175초 그대로이고, 음수 틱이 스폰 타이머를 되돌리지 않아 27.5초 시점에도 주문은 1건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-004"
+      ],
+      "requirements_raw": "FR-ORDER-004",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: Tick_경과_시간이_0_이하이면_아무것도_변하지_않는다"
+    },
+    {
+      "id": "ORDER-034",
+      "module": "ORDER",
+      "feature": "주문 생성",
+      "title": "주문 번호는 1부터 차례로 늘고 생성마다 통지된다",
+      "priority": "Low",
+      "technique": "상태전이",
+      "precondition": "주문판 생성, 생성 통지 구독",
+      "steps": "Prime(0) 후 28초씩 두 번 Tick한다",
+      "data": "3건 생성",
+      "expected": "통지 3건, 번호 1·2·3",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-002"
+      ],
+      "requirements_raw": "FR-ORDER-002",
+      "automation_kind": "NUnit",
+      "automation": "OrderBoardTests: 주문_번호는_1부터_차례로_늘어나고_생성마다_통지된다"
+    },
+    {
+      "id": "SCORE-001",
+      "module": "SCORE",
+      "feature": "보상 계산",
+      "title": "보상은 round(기본보상 × (1+0.5×남은시간비율) × 콤보배율)이다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "기본 점수 규칙(팁 0.5, 콤보 0.1/회, 상한 2.0)",
+      "steps": "CalculateReward(기본보상, 남은시간비율, 콤보)를 호출한다",
+      "data": "표: (22,1.0,0)→33 / (22,0,0)→22 / (18,0.5,0)→23(22.5 올림) / (22,0.5,1)→30 / (22,0,3)→29 / (22,1.0,10)→66",
+      "expected": "표의 기대값과 같다",
+      "note": "데이터 기반 TC: 6행. 22.5는 0.5에서 올림(AwayFromZero)",
+      "requirements": [
+        "FR-SCORE-005"
+      ],
+      "requirements_raw": "FR-SCORE-005",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: CalculateReward_기본보상_팁_콤보_공식대로_계산한다(22,1.0f,0,33), CalculateReward_기본보상_팁_콤보_공식대로_계산한다(22,0.0f,0,22), CalculateReward_기본보상_팁_콤보_공식대로_계산한다(18,0.5f,0,23), CalculateReward_기본보상_팁_콤보_공식대로_계산한다(22,0.5f,1,30), CalculateReward_기본보상_팁_콤보_공식대로_계산한다(22,0.0f,3,29), CalculateReward_기본보상_팁_콤보_공식대로_계산한다(22,1.0f,10,66)"
+    },
+    {
+      "id": "SCORE-002",
+      "module": "SCORE",
+      "feature": "보상 계산",
+      "title": "남은 시간 비율은 0과 1로 보정된다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "기본 점수 규칙",
+      "steps": "범위 밖 비율로 CalculateReward(22, 비율, 0)을 호출한다",
+      "data": "1.5, 100 / -0.5, -100",
+      "expected": "1.5·100 → 33(비율 1과 같음), -0.5·-100 → 22(비율 0과 같음)",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-005"
+      ],
+      "requirements_raw": "FR-SCORE-005",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: CalculateReward_남은시간_비율은_0과_1로_보정한다(1.5f,33), CalculateReward_남은시간_비율은_0과_1로_보정한다(100.0f,33), CalculateReward_남은시간_비율은_0과_1로_보정한다(-0.5f,22), CalculateReward_남은시간_비율은_0과_1로_보정한다(-100.0f,22)"
+    },
+    {
+      "id": "SCORE-003",
+      "module": "SCORE",
+      "feature": "콤보",
+      "title": "연속 성공 수에 따라 배율이 늘고 상한은 2.0이다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "기본 점수 규칙(단계 0.1, 상한 2.0)",
+      "steps": "GetComboMultiplier(콤보)를 호출한다",
+      "data": "0→1.0 / 1→1.1 / 5→1.5 / 9→1.9 / 10→2.0 / 11→2.0 / 100→2.0 / -3→1.0",
+      "expected": "표의 기대값과 같다(±0.00001)",
+      "note": "스펙 §6: 9(1.9배) / 10(2.0배) / 11(2.0배 유지). 데이터 기반 TC 8행",
+      "requirements": [
+        "FR-SCORE-006"
+      ],
+      "requirements_raw": "FR-SCORE-006",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(0,1.0f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(1,1.1f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(5,1.5f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(9,1.9f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(10,2.0f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(11,2.0f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(100,2.0f), GetComboMultiplier_연속_성공수에_따라_배율이_늘고_상한은_2점0이다(-3,1.0f)"
+    },
+    {
+      "id": "SCORE-004",
+      "module": "SCORE",
+      "feature": "점수판",
+      "title": "성공을 기록하면 골드·성공 수·콤보가 함께 늘어난다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "새 점수판",
+      "steps": "RegisterSuccess(22, 남은시간비율 1.0)을 호출한다",
+      "data": "기본보상 22",
+      "expected": "반환 33, 골드 33, 성공 1, 콤보 1, 최고 콤보 1",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: RegisterSuccess_골드_성공수_콤보가_함께_늘어난다"
+    },
+    {
+      "id": "SCORE-005",
+      "module": "SCORE",
+      "feature": "콤보",
+      "title": "연속으로 성공하면 두 번째 보상에 콤보 배율이 붙는다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "새 점수판",
+      "steps": "같은 조건으로 RegisterSuccess를 두 번 호출한다",
+      "data": "22, 비율 1.0",
+      "expected": "첫 보상 33, 둘째 보상 36(33×1.1=36.3), 골드 69",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-006"
+      ],
+      "requirements_raw": "FR-SCORE-006",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: RegisterSuccess_연속으로_성공하면_두번째_보상에_콤보_배율이_붙는다"
+    },
+    {
+      "id": "SCORE-006",
+      "module": "SCORE",
+      "feature": "점수판",
+      "title": "주문 만료를 기록하면 골드 -10, 콤보 0이 된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "골드 50 이상, 콤보 1",
+      "steps": "RegisterExpired를 호출한다",
+      "data": "—",
+      "expected": "변화량 -10, 골드 10 감소, 콤보 0, 만료 수 1",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-004"
+      ],
+      "requirements_raw": "FR-SCORE-004",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: RegisterExpired_골드가_10_줄고_콤보가_0이_된다"
+    },
+    {
+      "id": "SCORE-007",
+      "module": "SCORE",
+      "feature": "점수판",
+      "title": "오배송을 기록하면 골드 -5, 콤보 0이 된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "골드 50 이상, 콤보 1",
+      "steps": "RegisterMismatch를 호출한다",
+      "data": "—",
+      "expected": "변화량 -5, 골드 5 감소, 콤보 0, 오배송 수 1",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: RegisterMismatch_골드가_5_줄고_콤보가_0이_된다"
+    },
+    {
+      "id": "SCORE-008",
+      "module": "SCORE",
+      "feature": "점수판",
+      "title": "페널티는 골드를 0 아래로 내리지 않는다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "보유 골드를 표의 값으로 맞춘다",
+      "steps": "오배송(M, 5) 또는 만료(E, 10)를 기록한다",
+      "data": "표: (5,M)→-5, 골드0 / (4,M)→-4, 골드0 / (0,M)→0 / (10,E)→-10, 골드0 / (7,E)→-7, 골드0 / (0,E)→0 / (11,E)→-10, 골드1",
+      "expected": "표의 기대값과 같다",
+      "note": "스펙 §6: 골드 하한 0. 데이터 기반 TC 7행",
+      "requirements": [
+        "FR-SCORE-007"
+      ],
+      "requirements_raw": "FR-SCORE-007",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: 페널티는_골드를_0_아래로_내리지_않는다(5,\"M\",-5,0), 페널티는_골드를_0_아래로_내리지_않는다(4,\"M\",-4,0), 페널티는_골드를_0_아래로_내리지_않는다(0,\"M\",0,0), 페널티는_골드를_0_아래로_내리지_않는다(10,\"E\",-10,0), 페널티는_골드를_0_아래로_내리지_않는다(7,\"E\",-7,0), 페널티는_골드를_0_아래로_내리지_않는다(0,\"E\",0,0), 페널티는_골드를_0_아래로_내리지_않는다(11,\"E\",-10,1)"
+    },
+    {
+      "id": "SCORE-009",
+      "module": "SCORE",
+      "feature": "콤보",
+      "title": "연속 성공 뒤 실패하면 콤보는 0이 되지만 최고 콤보는 유지된다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "3연속 성공 상태",
+      "steps": "RegisterMismatch를 호출한다",
+      "data": "—",
+      "expected": "콤보 0, 최고 콤보 3",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-006"
+      ],
+      "requirements_raw": "FR-SCORE-006",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: 연속_성공_뒤_실패하면_콤보는_0이_되지만_최고_콤보는_유지된다"
+    },
+    {
+      "id": "SCORE-010",
+      "module": "SCORE",
+      "feature": "점수판",
+      "title": "Reset하면 모든 수치가 0으로 돌아간다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "성공·오배송·만료를 각각 기록한 점수판",
+      "steps": "Reset을 호출한다",
+      "data": "—",
+      "expected": "골드·성공·만료·오배송·콤보·최고 콤보가 모두 0",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-004"
+      ],
+      "requirements_raw": "FR-ROUND-004",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: Reset_모든_수치가_0으로_돌아간다"
+    },
+    {
+      "id": "SCORE-011",
+      "module": "SCORE",
+      "feature": "점수판",
+      "title": "생성자는 null 규칙을 거부한다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "—",
+      "steps": "ScoreBoard(null)을 생성한다",
+      "data": "—",
+      "expected": "ArgumentNullException",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: 점수판_생성자는_null_규칙을_거부한다"
+    },
+    {
+      "id": "SCORE-012",
+      "module": "SCORE",
+      "feature": "별점",
+      "title": "골드에 따라 0~3성을 판정하고 경계값은 높은 쪽이다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "기본 기준(1성 60, 2성 110, 3성 170)",
+      "steps": "Evaluate(골드)를 호출한다",
+      "data": "골드: -5,0,59→0성 / 60,109→1성 / 110,169→2성 / 170,1000→3성",
+      "expected": "표의 기대값과 같다",
+      "note": "경계: 59/60, 109/110, 169/170. 데이터 기반 TC 9행",
+      "requirements": [
+        "SPEC-4.4"
+      ],
+      "requirements_raw": "SPEC-4.4",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(-5,0), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(0,0), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(59,0), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(60,1), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(109,1), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(110,2), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(169,2), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(170,3), StarThresholds_골드에_따라_0에서_3성을_판정하고_경계값은_높은_쪽이다(1000,3)"
+    },
+    {
+      "id": "SCORE-013",
+      "module": "SCORE",
+      "feature": "별점",
+      "title": "다음 별까지의 진행률을 0~1로 돌려준다",
+      "priority": "Low",
+      "technique": "경계값분석",
+      "precondition": "기본 기준",
+      "steps": "ProgressToNextStar(골드)를 호출한다",
+      "data": "0→0 / 30→0.5 / 60→0 / 85→0.5 / 110→0 / 140→0.5 / 170→1 / 500→1",
+      "expected": "표의 기대값과 같다",
+      "note": "결과 화면 게이지용",
+      "requirements": [
+        "SPEC-4.4"
+      ],
+      "requirements_raw": "SPEC-4.4",
+      "automation_kind": "NUnit",
+      "automation": "ScoreTests: StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(0,0.0f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(30,0.5f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(60,0.0f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(85,0.5f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(110,0.0f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(140,0.5f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(170,1.0f), StarThresholds_다음_별까지의_진행률을_0에서_1로_돌려준다(500,1.0f)"
+    },
+    {
+      "id": "SCORE-014",
+      "module": "SCORE",
+      "feature": "제출 판정",
+      "title": "주문과 일치하는 접시를 제출하면 성공 보상이 지급되고 주문이 사라진다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "진행 중 라운드, 주문 1건(기본 보상 20)",
+      "steps": "주문과 같은 구성의 접시를 제출한다",
+      "data": "빵+패티(Cooked)",
+      "expected": "결과 Success, 골드 +30(20×1.5), 남은 시간 비율 1.0, 콤보 1, 활성 주문 0건",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: SubmitPlate_주문과_일치하면_성공_보상이_지급되고_주문이_사라진다"
+    },
+    {
+      "id": "SCORE-015",
+      "module": "SCORE",
+      "feature": "제출 판정",
+      "title": "일치하는 주문이 없으면 골드 -5, 콤보 0이 되고 주문은 남는다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "골드 30·콤보 1, 활성 주문 1건",
+      "steps": "주문과 다른 구성의 접시를 제출한다",
+      "data": "빵+양상추",
+      "expected": "결과 Mismatch, 변화량 -5, 골드 25, 콤보 0, 오배송 1, 활성 주문 1건 유지",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: SubmitPlate_일치하는_주문이_없으면_골드_5가_줄고_콤보가_0이_되며_주문은_남는다"
+    },
+    {
+      "id": "SCORE-016",
+      "module": "SCORE",
+      "feature": "제출 판정",
+      "title": "빈 접시나 null은 무효이고 점수·콤보가 변하지 않는다",
+      "priority": "High",
+      "technique": "에러추측",
+      "precondition": "골드 30·콤보 1, 활성 주문 1건",
+      "steps": "빈 접시와 null을 각각 제출한다",
+      "data": "빈 집합 / null",
+      "expected": "결과 EmptyPlate, 변화량 0, 골드 30, 콤보 1, 활성 주문 1건",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-003"
+      ],
+      "requirements_raw": "FR-SCORE-003",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: SubmitPlate_빈_접시나_null은_무효이고_점수와_콤보가_변하지_않는다"
+    },
+    {
+      "id": "SCORE-017",
+      "module": "SCORE",
+      "feature": "제출 판정",
+      "title": "주문이 만료되면 골드 -10, 콤보 0이 된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "골드 30·콤보 1, 제한시간 10초인 두 번째 주문 1건",
+      "steps": "10초를 Tick해 주문을 만료시킨다",
+      "data": "—",
+      "expected": "골드 20, 콤보 0, 만료 수 1",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-004"
+      ],
+      "requirements_raw": "FR-SCORE-004",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_주문이_만료되면_골드_10이_줄고_콤보가_0이_된다"
+    },
+    {
+      "id": "ROUND-001",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "시작 전에는 Ready이고 Start하면 Running이 된다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "새 라운드(240초)",
+      "steps": "Start()를 호출한다",
+      "data": "—",
+      "expected": "시작 전 Ready, 시작 후 Running, 경과 0, 골드 0",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-001"
+      ],
+      "requirements_raw": "FR-ROUND-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Start_시작_전에는_Ready이고_Start하면_Running이_된다"
+    },
+    {
+      "id": "ROUND-002",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "첫 주문 지연 8초를 주면 8초 뒤에 첫 주문이 뜬다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "새 라운드(240초), 간격 28초",
+      "steps": "Start(8초) 후 7.5초, 다시 0.5초를 Tick한다",
+      "data": "지연 8초",
+      "expected": "7.5초 시점 주문 0건, 8초 시점 1건",
+      "note": "ORDER-001/002의 통합 확인",
+      "requirements": [
+        "FR-ORDER-001"
+      ],
+      "requirements_raw": "FR-ORDER-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Start_첫_주문_지연_8초를_주면_8초_뒤에_첫_주문이_뜬다"
+    },
+    {
+      "id": "ROUND-003",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "경과 239.5초에는 라운드가 계속 진행 중이다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "Running 라운드(240초)",
+      "steps": "239.5초를 Tick한다",
+      "data": "239.5초",
+      "expected": "상태 Running",
+      "note": "스펙: 경과 ≥ 240초에 종료",
+      "requirements": [
+        "FR-ROUND-002"
+      ],
+      "requirements_raw": "FR-ROUND-002",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_경과_239점5초에는_라운드가_계속_진행_중이다"
+    },
+    {
+      "id": "ROUND-004",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "경과가 정확히 240초가 되면 라운드가 종료된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "239.5초 경과한 라운드",
+      "steps": "0.5초를 더 Tick한다",
+      "data": "240초",
+      "expected": "상태 Finished, 경과 240초",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-002"
+      ],
+      "requirements_raw": "FR-ROUND-002",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_경과가_정확히_240초가_되면_라운드가_종료된다"
+    },
+    {
+      "id": "ROUND-005",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "종료하면 활성 주문이 모두 사라지고 만료 페널티는 없다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "골드 30, 활성 주문 1건",
+      "steps": "Finish()를 호출한다",
+      "data": "—",
+      "expected": "활성 주문 0건, 만료 수 0, 골드 30 그대로",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-002"
+      ],
+      "requirements_raw": "FR-ROUND-002",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Finish_종료하면_활성_주문이_모두_사라지고_만료_페널티는_없다"
+    },
+    {
+      "id": "ROUND-006",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "종료 통지는 한 번만 가고 요약에 최종 성적이 담긴다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "성공 2회(30 + 33)한 라운드, 종료 통지 구독",
+      "steps": "Finish()를 두 번 호출한다",
+      "data": "보상 20, 간격 10초",
+      "expected": "통지 1건: 골드 63, 별 1, 성공 2, 최고 콤보 2",
+      "note": "별 기준 60 이상 110 미만 → 1성",
+      "requirements": [
+        "FR-ROUND-003"
+      ],
+      "requirements_raw": "FR-ROUND-003",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Finish_종료_통지는_한_번만_가고_요약에_최종_성적이_담긴다"
+    },
+    {
+      "id": "ROUND-007",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "종료 뒤에는 시간이 흐르지도 주문이 생기지도 않는다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "종료된 라운드",
+      "steps": "100초를 Tick한다",
+      "data": "—",
+      "expected": "경과 240초 그대로, 활성 주문 0건",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-003"
+      ],
+      "requirements_raw": "FR-ROUND-003",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_종료_뒤에는_시간이_더_흐르지도_주문이_생기지도_않는다"
+    },
+    {
+      "id": "ROUND-008",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "종료 뒤에 제출해도 점수는 변하지 않는다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "골드 30을 얻고 종료된 라운드",
+      "steps": "잘못된 접시를 제출한다",
+      "data": "빵+양상추",
+      "expected": "골드 30 그대로(스펙 FR-ROUND-003 '시뮬레이션 일시정지'의 해석)",
+      "note": "[결함 후보] Core는 종료 뒤 제출도 오배송으로 처리한다. GameSession.SubmitPlate도 종료 여부를 검사하지 않는다. 결과 요약은 종료 시점에 이미 확정되어 화면 영향은 작다",
+      "requirements": [
+        "FR-ROUND-003"
+      ],
+      "requirements_raw": "FR-ROUND-003",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: SubmitPlate_종료_뒤에_제출해도_점수는_변하지_않는다"
+    },
+    {
+      "id": "ROUND-009",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "종료 뒤 다시 시작하면 점수·시간이 초기화되고 주문이 새로 뜬다",
+      "priority": "High",
+      "technique": "상태전이",
+      "precondition": "성공 1회 후 종료된 라운드",
+      "steps": "Start(0)을 호출한다",
+      "data": "—",
+      "expected": "Running, 경과 0, 골드 0, 성공 0, 활성 주문 1건",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-004"
+      ],
+      "requirements_raw": "FR-ROUND-004",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Start_종료_뒤_다시_시작하면_점수와_시간이_초기화되고_주문이_새로_뜬다"
+    },
+    {
+      "id": "ROUND-010",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "진행 중에 Start를 다시 호출해도 무시된다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "10초 진행한 라운드",
+      "steps": "Start()를 다시 호출한다",
+      "data": "—",
+      "expected": "경과 10초 유지, 활성 주문 1건 유지",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-001"
+      ],
+      "requirements_raw": "FR-ROUND-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Start_진행_중에_다시_호출해도_무시된다"
+    },
+    {
+      "id": "ROUND-011",
+      "module": "ROUND",
+      "feature": "라운드 흐름",
+      "title": "시작 전에는 시간이 흐르지 않고, 120초 시점의 진행도는 0.5이다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "Ready 상태의 라운드(240초)",
+      "steps": "Ready에서 50초 Tick, Start 후 120초 Tick한다",
+      "data": "—",
+      "expected": "Ready에서는 경과 0, 120초 시점 진행도 0.5",
+      "note": null,
+      "requirements": [
+        "FR-ROUND-001"
+      ],
+      "requirements_raw": "FR-ROUND-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_시작_전에는_시간이_흐르지_않고_진행도는_절반_지점에서_0점5다"
+    },
+    {
+      "id": "ROUND-012",
+      "module": "ROUND",
+      "feature": "주문 생성 중단",
+      "title": "라운드 잔여 15.5초에는 새 주문이 생성된다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "라운드 100초, 시간배율 1(임계값 15초), 간격 10초",
+      "steps": "84.5초를 Tick한다(잔여 15.5초)",
+      "data": "잔여 15.5초",
+      "expected": "활성 주문 2건",
+      "note": "스펙 §6: 신규 주문 중단 경계 15×시간배율",
+      "requirements": [
+        "FR-ORDER-006"
+      ],
+      "requirements_raw": "FR-ORDER-006",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_잔여_15점5초에는_새_주문이_생성된다"
+    },
+    {
+      "id": "ROUND-013",
+      "module": "ROUND",
+      "feature": "주문 생성 중단",
+      "title": "라운드 잔여 14.5초에는 새 주문이 생성되지 않는다",
+      "priority": "High",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 라운드",
+      "steps": "85.5초를 Tick한다(잔여 14.5초)",
+      "data": "잔여 14.5초",
+      "expected": "활성 주문 1건(추가 생성 없음)",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-006"
+      ],
+      "requirements_raw": "FR-ORDER-006",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_잔여_14점5초에는_새_주문이_생성되지_않는다"
+    },
+    {
+      "id": "ROUND-014",
+      "module": "ROUND",
+      "feature": "주문 생성 중단",
+      "title": "라운드 잔여가 정확히 15초일 때는 스펙대로 새 주문이 생성된다",
+      "priority": "Medium",
+      "technique": "경계값분석",
+      "precondition": "위와 같은 라운드",
+      "steps": "85초를 Tick한다(잔여 정확히 15초)",
+      "data": "잔여 15초",
+      "expected": "스펙은 '잔여 < 15×시간배율'일 때 중단이므로 15초 정확히는 생성된다 → 활성 주문 2건",
+      "note": "[결함 후보] 코드는 '잔여 > 임계값'일 때만 생성(≤ 이면 중단)이라 1건. 스펙을 '≤'로 고치거나 코드를 '≥'로 맞춰야 한다",
+      "requirements": [
+        "FR-ORDER-006"
+      ],
+      "requirements_raw": "FR-ORDER-006",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: Tick_잔여가_정확히_15초일_때는_스펙대로_새_주문이_생성된다"
+    },
+    {
+      "id": "ROUND-015",
+      "module": "ROUND",
+      "feature": "이벤트",
+      "title": "주문이 생길 때마다 OrderSpawned가 통지된다",
+      "priority": "Low",
+      "technique": "상태전이",
+      "precondition": "새 라운드, 간격 10초, 통지 구독",
+      "steps": "Start(0) 후 10초를 Tick한다",
+      "data": "—",
+      "expected": "통지 2건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-002"
+      ],
+      "requirements_raw": "FR-ORDER-002",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: 주문이_생길_때마다_OrderSpawned가_통지된다"
+    },
+    {
+      "id": "ROUND-016",
+      "module": "ROUND",
+      "feature": "이벤트",
+      "title": "주문이 만료되면 OrderExpired가 통지된다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "제한시간 10초 주문 1건, 통지 구독",
+      "steps": "10초를 Tick한다",
+      "data": "—",
+      "expected": "통지 1건",
+      "note": null,
+      "requirements": [
+        "FR-ORDER-005"
+      ],
+      "requirements_raw": "FR-ORDER-005",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: 주문이_만료되면_OrderExpired가_통지된다"
+    },
+    {
+      "id": "ROUND-017",
+      "module": "ROUND",
+      "feature": "이벤트",
+      "title": "제출할 때마다 PlateServed가 결과 종류대로 통지된다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "주문 1건, 통지 구독",
+      "steps": "정상 접시, 잘못된 접시, 빈 접시를 차례로 제출한다",
+      "data": "—",
+      "expected": "Success, Mismatch, EmptyPlate 순서로 3건",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: 제출할_때마다_PlateServed가_결과_종류대로_통지된다"
+    },
+    {
+      "id": "ROUND-018",
+      "module": "ROUND",
+      "feature": "이벤트",
+      "title": "완료한 주문은 시간이 지나도 OrderExpired가 통지되지 않는다",
+      "priority": "Medium",
+      "technique": "상태전이",
+      "precondition": "주문 1건을 완료한 라운드, 통지 구독",
+      "steps": "100초를 Tick한다(새 주문 없음)",
+      "data": "—",
+      "expected": "통지 0건",
+      "note": null,
+      "requirements": [
+        "FR-SCORE-001"
+      ],
+      "requirements_raw": "FR-SCORE-001",
+      "automation_kind": "NUnit",
+      "automation": "RoundSimulationTests: 완료한_주문은_시간이_지나도_OrderExpired가_통지되지_않는다"
+    },
+    {
+      "id": "MS-001",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "담는 순서가 달라도 같은 구성이면 같다(4개 재료 24가지 순열)",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "던전 버거 = 빵 + 패티(Cooked) + 양상추(Chopped) + 토마토(Chopped)",
+      "steps": "재료 4개의 모든 순열(24가지)로 접시를 만들어 요구 집합과 비교한다",
+      "data": "24가지 순열",
+      "expected": "24가지 모두 같다고 판정한다",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-002"
+      ],
+      "requirements_raw": "FR-PLATE-002",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: ContentEquals_담는_순서가_달라도_같은_구성이면_같다_4개_재료_24가지_순열"
+    },
+    {
+      "id": "MS-002",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "총 개수·종류 수가 같아도 개수 분포가 다르면 다르다",
+      "priority": "Medium",
+      "technique": "에러추측",
+      "precondition": "{빵 2, 패티 1}과 {빵 1, 패티 2}",
+      "steps": "ContentEquals로 비교한다",
+      "data": "총 3개·종류 2개로 같음",
+      "expected": "서로 다르다고 판정한다",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-002"
+      ],
+      "requirements_raw": "FR-PLATE-002",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: ContentEquals_총_개수와_종류_수가_같아도_개수_분포가_다르면_다르다"
+    },
+    {
+      "id": "MS-003",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "같은 재료 두 장과 한 장은 다르다",
+      "priority": "Medium",
+      "technique": "동등분할",
+      "precondition": "{치즈 2}와 {치즈 1}",
+      "steps": "ContentEquals로 비교하고, {치즈 2}끼리도 비교한다",
+      "data": "—",
+      "expected": "두 장 vs 한 장: 다름, 두 장 vs 두 장: 같음",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-002"
+      ],
+      "requirements_raw": "FR-PLATE-002",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: ContentEquals_같은_재료_두_장과_한_장은_다르다"
+    },
+    {
+      "id": "MS-004",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "같은 재료라도 가공 상태가 다르면 다르다",
+      "priority": "High",
+      "technique": "동등분할",
+      "precondition": "양상추(Chopped)/(Raw), 패티(Cooked)/(Burned)",
+      "steps": "각 쌍을 ContentEquals로 비교한다",
+      "data": "—",
+      "expected": "두 쌍 모두 다르다고 판정한다",
+      "note": "탄 재료로 주문을 완성하지 못하는 근거",
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: ContentEquals_같은_재료라도_가공_상태가_다르면_다르다"
+    },
+    {
+      "id": "MS-005",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "null과는 다르고 자기 자신과는 같다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "4개 재료 집합",
+      "steps": "ContentEquals(null), ContentEquals(자기 자신)을 호출한다",
+      "data": "—",
+      "expected": "false / true",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-002"
+      ],
+      "requirements_raw": "FR-PLATE-002",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: ContentEquals_null과는_다르고_자기_자신과는_같다"
+    },
+    {
+      "id": "MS-006",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "개수가 0 이하인 Add는 무시된다",
+      "priority": "Low",
+      "technique": "경계값분석",
+      "precondition": "빈 집합",
+      "steps": "Add(빵, 0), Add(빵, -2)를 호출한다",
+      "data": "0, -2",
+      "expected": "여전히 비어 있고 총 개수 0",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-001"
+      ],
+      "requirements_raw": "FR-PLATE-001",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: Add_개수가_0_이하이면_무시된다"
+    },
+    {
+      "id": "MS-007",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "없거나 부족한 재료의 Remove는 false이고 내용은 그대로다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "{빵, 치즈}",
+      "steps": "없는 재료 Remove, 개수 초과 Remove, 정상 Remove를 차례로 호출한다",
+      "data": "양파 / 빵 ×2 / 빵",
+      "expected": "false / false / true. 앞의 둘은 총 2개 유지, 마지막은 종류 수 1",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-001"
+      ],
+      "requirements_raw": "FR-PLATE-001",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: Remove_없거나_부족하면_false를_돌려주고_내용은_그대로다"
+    },
+    {
+      "id": "MS-008",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "복사 생성자로 만든 집합은 원본과 독립이다",
+      "priority": "Low",
+      "technique": "에러추측",
+      "precondition": "4개 재료 집합과 그 복사본",
+      "steps": "복사본에 재료를 추가한다",
+      "data": "치즈 추가",
+      "expected": "원본 4개 그대로, 복사본 5개",
+      "note": null,
+      "requirements": [
+        "FR-PLATE-001"
+      ],
+      "requirements_raw": "FR-PLATE-001",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: 복사_생성자로_만든_집합은_원본과_독립이다"
+    },
+    {
+      "id": "MS-009",
+      "module": "MS",
+      "feature": "접시 판정",
+      "title": "MissingFrom / ExtrasOver는 부족한 재료와 잘못 넣은 재료를 알려준다",
+      "priority": "Low",
+      "technique": "동등분할",
+      "precondition": "접시 {빵, 패티, 치즈} vs 던전 버거 요구",
+      "steps": "MissingFrom, ExtrasOver를 호출한다",
+      "data": "—",
+      "expected": "부족 = {양상추, 토마토}, 잘못 넣음 = {치즈}",
+      "note": "UI의 '무엇이 더 필요한지' 표시용",
+      "requirements": [
+        "FR-SCORE-002"
+      ],
+      "requirements_raw": "FR-SCORE-002",
+      "automation_kind": "NUnit",
+      "automation": "IngredientMultisetTests: MissingFrom_과_ExtrasOver_부족한_재료와_잘못_넣은_재료를_알려준다"
+    }
+  ],
+  "by_requirement": {
+    "FR-MOVE-001": [
+      "MOVE-001"
+    ],
+    "FR-MOVE-002": [
+      "MOVE-002"
+    ],
+    "FR-MOVE-003": [
+      "MOVE-003"
+    ],
+    "FR-MOVE-004": [
+      "MOVE-004"
+    ],
+    "FR-MOVE-005": [
+      "MOVE-005"
+    ],
+    "FR-MOVE-006": [
+      "MOVE-006"
+    ],
+    "FR-MOVE-007": [
+      "MOVE-007"
+    ],
+    "FR-MOVE-010": [
+      "MOVE-008"
+    ],
+    "FR-MOVE-008": [
+      "MOVE-009"
+    ],
+    "FR-MOVE-009": [
+      "MOVE-011"
+    ],
+    "FR-INT-001": [
+      "INT-001"
+    ],
+    "FR-INT-002": [
+      "INT-002"
+    ],
+    "FR-INT-009": [
+      "INT-003"
+    ],
+    "FR-INT-003": [
+      "INT-004"
+    ],
+    "FR-INT-004": [
+      "INT-005"
+    ],
+    "FR-INT-005": [
+      "INT-006"
+    ],
+    "FR-INT-006": [
+      "INT-007"
+    ],
+    "FR-INT-007": [
+      "INT-008"
+    ],
+    "FR-INT-008": [
+      "INT-009"
+    ],
+    "FR-DROP-001": [
+      "DROP-001"
+    ],
+    "FR-DROP-002": [
+      "DROP-002"
+    ],
+    "FR-DROP-003": [
+      "DROP-003"
+    ],
+    "FR-DROP-004": [
+      "DROP-004"
+    ],
+    "FR-DROP-005": [
+      "DROP-005"
+    ],
+    "FR-DROP-006": [
+      "DROP-006"
+    ],
+    "FR-DROP-007": [
+      "DROP-007"
+    ],
+    "FR-DROP-008": [
+      "DROP-008"
+    ],
+    "FR-DROP-009": [
+      "DROP-009"
+    ],
+    "FR-DROP-010": [
+      "DROP-010"
+    ],
+    "FR-DROP-011": [
+      "DROP-011"
+    ],
+    "FR-DROP-012": [
+      "DROP-012"
+    ],
+    "FR-DROP-013": [
+      "DROP-013"
+    ],
+    "FR-DROP-014": [
+      "DROP-014"
+    ],
+    "FR-DROP-015": [
+      "DROP-015"
+    ],
+    "FR-DROP-016": [
+      "DROP-016"
+    ],
+    "FR-DROP-017": [
+      "DROP-017"
+    ],
+    "FR-COOK-001": [
+      "COOK-001"
+    ],
+    "FR-COOK-002": [
+      "COOK-002"
+    ],
+    "FR-COOK-003": [
+      "COOK-003"
+    ],
+    "FR-COOK-004": [
+      "COOK-004"
+    ],
+    "FR-COOK-005": [
+      "COOK-005"
+    ],
+    "FR-COOK-006": [
+      "COOK-006"
+    ],
+    "FR-COOK-007": [
+      "COOK-007"
+    ],
+    "FR-COOK-008": [
+      "COOK-008"
+    ],
+    "FR-COOK-009": [
+      "COOK-009"
+    ],
+    "FR-COOK-010": [
+      "COOK-010"
+    ],
+    "FR-COOK-011": [
+      "COOK-011"
+    ],
+    "FR-COOK-012": [
+      "COOK-012"
+    ],
+    "FR-COOK-013": [
+      "COOK-013"
+    ],
+    "FR-COOK-014": [
+      "COOK-014"
+    ],
+    "FR-COOK-015": [
+      "COOK-015"
+    ],
+    "FR-COOK-016": [
+      "COOK-016"
+    ],
+    "FR-COOK-017": [
+      "COOK-017"
+    ],
+    "FR-COOK-018": [
+      "COOK-018"
+    ],
+    "FR-COOK-019": [
+      "COOK-019"
+    ],
+    "FR-PLATE-001": [
+      "PLATE-001",
+      "MS-006",
+      "MS-007",
+      "MS-008"
+    ],
+    "FR-PLATE-002": [
+      "PLATE-002",
+      "MS-001",
+      "MS-002",
+      "MS-003",
+      "MS-005"
+    ],
+    "FR-PLATE-003": [
+      "PLATE-003"
+    ],
+    "FR-PLATE-004": [
+      "PLATE-004"
+    ],
+    "FR-PLATE-005": [
+      "PLATE-005"
+    ],
+    "FR-PLATE-006": [
+      "PLATE-006"
+    ],
+    "FR-PLATE-007": [
+      "PLATE-007"
+    ],
+    "FR-PLATE-008": [
+      "PLATE-008"
+    ],
+    "FR-PLATE-009": [
+      "PLATE-009"
+    ],
+    "FR-PLATE-010": [
+      "PLATE-010"
+    ],
+    "FR-PLATE-011": [
+      "PLATE-011"
+    ],
+    "FR-FRESH-001": [
+      "FRESH-001"
+    ],
+    "FR-FRESH-002": [
+      "FRESH-002"
+    ],
+    "FR-FRESH-003": [
+      "FRESH-003"
+    ],
+    "FR-FRESH-004": [
+      "FRESH-004"
+    ],
+    "FR-FRESH-005": [
+      "FRESH-005"
+    ],
+    "FR-FRESH-006": [
+      "FRESH-006"
+    ],
+    "FR-FRESH-007": [
+      "FRESH-007"
+    ],
+    "FR-ROUND-001": [
+      "UI-001",
+      "ROUND-001",
+      "ROUND-010",
+      "ROUND-011"
+    ],
+    "FR-ROUND-002": [
+      "UI-002",
+      "ORDER-013",
+      "ROUND-003",
+      "ROUND-004",
+      "ROUND-005"
+    ],
+    "FR-ROUND-003": [
+      "UI-003",
+      "UI-008",
+      "ROUND-006",
+      "ROUND-007",
+      "ROUND-008"
+    ],
+    "FR-ROUND-004": [
+      "UI-004",
+      "SCORE-010",
+      "ROUND-009"
+    ],
+    "FR-SCORE-001": [
+      "UI-005",
+      "ORDER-012",
+      "ORDER-031",
+      "SCORE-004",
+      "SCORE-011",
+      "SCORE-014",
+      "ROUND-017",
+      "ROUND-018"
+    ],
+    "FR-SCORE-002": [
+      "UI-006",
+      "ORDER-027",
+      "ORDER-028",
+      "ORDER-029",
+      "SCORE-007",
+      "SCORE-015",
+      "MS-004",
+      "MS-009"
+    ],
+    "FR-SCORE-004": [
+      "UI-007",
+      "SCORE-006",
+      "SCORE-017"
+    ],
+    "FR-ORDER-008": [
+      "RECIPE-001",
+      "RECIPE-002",
+      "RECIPE-003",
+      "RECIPE-004",
+      "RECIPE-005",
+      "RECIPE-006",
+      "RECIPE-007",
+      "RECIPE-008",
+      "RECIPE-009",
+      "RECIPE-010",
+      "DIFF-002",
+      "DIFF-005",
+      "DIFF-006",
+      "DIFF-007",
+      "DIFF-009",
+      "ORDER-016",
+      "ORDER-017",
+      "ORDER-018",
+      "ORDER-019"
+    ],
+    "FR-ORDER-010": [
+      "RECIPE-011",
+      "ORDER-023",
+      "ORDER-024"
+    ],
+    "FR-ORDER-007": [
+      "DIFF-001",
+      "DIFF-003",
+      "DIFF-004",
+      "ORDER-015"
+    ],
+    "FR-ORDER-003": [
+      "DIFF-008",
+      "ORDER-005",
+      "ORDER-006"
+    ],
+    "FR-ORDER-001": [
+      "ORDER-001",
+      "ORDER-002",
+      "ORDER-003",
+      "ROUND-002"
+    ],
+    "FR-ORDER-002": [
+      "ORDER-004",
+      "ORDER-022",
+      "ORDER-032",
+      "ORDER-034",
+      "ROUND-015"
+    ],
+    "FR-ORDER-004": [
+      "ORDER-007",
+      "ORDER-008",
+      "ORDER-033"
+    ],
+    "FR-ORDER-005": [
+      "ORDER-009",
+      "ORDER-010",
+      "ORDER-011",
+      "ROUND-016"
+    ],
+    "FR-ORDER-006": [
+      "ORDER-014",
+      "ROUND-012",
+      "ROUND-013",
+      "ROUND-014"
+    ],
+    "FR-ORDER-009": [
+      "ORDER-020",
+      "ORDER-021"
+    ],
+    "FR-ORDER-011": [
+      "ORDER-025",
+      "ORDER-026"
+    ],
+    "FR-SCORE-003": [
+      "ORDER-030",
+      "SCORE-016"
+    ],
+    "FR-SCORE-005": [
+      "SCORE-001",
+      "SCORE-002"
+    ],
+    "FR-SCORE-006": [
+      "SCORE-003",
+      "SCORE-005",
+      "SCORE-009"
+    ],
+    "FR-SCORE-007": [
+      "SCORE-008"
+    ],
+    "SPEC-4.4": [
+      "SCORE-012",
+      "SCORE-013"
+    ]
+  }
+}

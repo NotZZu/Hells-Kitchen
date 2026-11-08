@@ -1,0 +1,143 @@
+name: Generate tests (LLM)
+
+# 모델 하나로 요구사항별 시험 코드를 생성하고, 결과를 브랜치와 PR 로 올린다. 수동 실행 전용.
+# PR 은 비교 실험용이다. 통째로 병합하지 않고, 통과율과 요약을 보고 판단한다.
+#
+# 필요한 시크릿 (Settings > Secrets and variables > Actions)
+#   ANTHROPIC_API_KEY, GEMINI_API_KEY, DEEPSEEK_API_KEY : 쓰려는 프로필의 키만 있으면 된다
+#   SHARED_REPO_TOKEN : 비공개 저장소 NotZZu/Testing.Shared 읽기 전용 토큰(ci.yml 과 같은 것)
+# 로컬 모델(local 프로필)은 runner 입력에 self-hosted 실행기 라벨을 주어, LLM 이 도는 PC 에서 실행한다.
+#   주소와 모델 이름은 Tools/generator/models.json 의 local 프로필에서 고친다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Tools/generator/models.json 의 프로필 이름'
+        required: true
+        default: haiku
+      reqs:
+        description: '요구사항 ID(쉼표로 구분). 비우면 파일럿 6건'
+        required: false
+        default: ''
+      granularity:
+        description: '모델을 한 번 부를 때 담는 요구사항 단위'
+        type: choice
+        options: [requirement, module, all]
+        default: requirement
+      budget_krw:
+        description: '이 실행의 예산 상한(원). 넘길 것 같으면 호출 전에 멈춘다'
+        required: true
+        default: '500'
+      shared_ref:
+        description: 'Testing.Shared 에서 받을 브랜치 또는 태그'
+        required: true
+        default: main
+      runner:
+        description: '실행기 라벨(ubuntu-latest 또는 로컬 모델용 self-hosted 라벨)'
+        required: true
+        default: ubuntu-latest
+      open_pr:
+        description: '결과를 브랜치와 PR 로 올리고 EditMode 시험도 돌린다'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  generate:
+    name: 생성 (${{ inputs.profile }})
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 60
+    env:
+      # 입력값은 환경 변수로만 쓰고, 명령 문자열에 직접 끼워 넣지 않는다.
+      PROFILE: ${{ inputs.profile }}
+      REQS: ${{ inputs.reqs }}
+      GRANULARITY: ${{ inputs.granularity }}
+      BUDGET_KRW: ${{ inputs.budget_krw }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+    steps:
+      - name: 입력 확인
+        run: |
+          [[ "$PROFILE" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::프로필 이름 형식이 올바르지 않다"; exit 1; }
+          [[ "$BUDGET_KRW" =~ ^[0-9]+$ ]] || { echo "::error::예산은 숫자(원)여야 한다"; exit 1; }
+          [[ -z "$REQS" || "$REQS" =~ ^[A-Z0-9,-]+$ ]] || { echo "::error::요구사항 ID 형식이 올바르지 않다"; exit 1; }
+
+      - uses: actions/checkout@v4
+
+      - name: Testing.Shared 받기 (비공개 저장소)
+        uses: actions/checkout@v4
+        with:
+          repository: NotZZu/Testing.Shared
+          ref: ${{ inputs.shared_ref }}
+          token: ${{ secrets.SHARED_REPO_TOKEN }}
+          path: _shared
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 생성기 빌드
+        run: dotnet build "_shared/Tools~/GeneratorCli" -c Release -o _cli
+
+      # 키 값은 출력하지 않는다. 있는지 없는지와 연결 결과만 보인다.
+      - name: 연결 확인 (doctor)
+        run: dotnet _cli/Testing.Shared.Generator.Cli.dll doctor --models Tools/generator/models.json --profile "$PROFILE"
+
+      - name: 예상 비용 (estimate)
+        run: |
+          args=(estimate --models Tools/generator/models.json --data Tools/generator --profile "$PROFILE")
+          [ -n "$REQS" ] && args+=(--reqs "$REQS")
+          dotnet _cli/Testing.Shared.Generator.Cli.dll "${args[@]}"
+
+      - name: 생성 (generate)
+        run: |
+          args=(generate --models Tools/generator/models.json --data Tools/generator --profile "$PROFILE"
+                --granularity "$GRANULARITY" --budget-krw "$BUDGET_KRW" --out gen_out)
+          [ -n "$REQS" ] && args+=(--reqs "$REQS")
+          dotnet _cli/Testing.Shared.Generator.Cli.dll "${args[@]}"
+
+      - name: 요약 표시
+        if: always()
+        run: |
+          f="gen_out/$PROFILE/summary.md"
+          [ -f "$f" ] && cat "$f" >> "$GITHUB_STEP_SUMMARY" || echo "요약 파일이 없다(생성 전에 실패)." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 결과 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gen-${{ inputs.profile }}-${{ github.run_number }}
+          path: gen_out
+          if-no-files-found: warn
+
+      # 같은 저장소의 push 로 시작된 CI 는 GITHUB_TOKEN 으로는 자동 시작되지 않으므로,
+      # 브랜치를 올린 뒤 ci.yml 을 직접 실행시켜 생성된 시험의 통과율을 본다.
+      - name: 브랜치, PR, EditMode 시험
+        if: ${{ inputs.open_pr }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cs=$(ls "gen_out/$PROFILE"/GeneratedTests_*.cs 2>/dev/null | head -n 1)
+          if [ -z "$cs" ]; then echo "생성된 시험 코드가 없어 PR 을 만들지 않는다."; exit 0; fi
+
+          branch="gen/${PROFILE}-${{ github.run_number }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          mkdir -p Assets/_Project/Tests/Generated
+          cp "$cs" Assets/_Project/Tests/Generated/
+          git add Assets/_Project/Tests/Generated
+          git commit -m "test(generated): $PROFILE 모델이 만든 시험 (실행 ${{ github.run_number }})"
+          git push origin "$branch"
+
+          gh pr create --base main --head "$branch" \
+            --title "생성 시험 비교: $PROFILE (실행 ${{ github.run_number }})" \
+            --body-file "gen_out/$PROFILE/summary.md"
+          gh workflow run ci.yml --ref "$branch"

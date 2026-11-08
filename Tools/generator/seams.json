@@ -1,0 +1,881 @@
+{
+  "basis": "명세 표 + Runtime 메서드 시그니처. 잠정 분류(본문 대부분 미확인)",
+  "classes": {
+    "EXISTING": "이미 NUnit 시험이 있음",
+    "A": "public 메서드로 바로 가능",
+    "B1": "시간 매개변수를 받는 private -> 리플렉션",
+    "B3": "시간 무관 private -> 리플렉션",
+    "B2": "Update 안에서 Time.deltaTime 을 읽음 -> EditMode 에서 측정한 deltaTime(>0)으로 기대값 계산 가능(2026-11-07 실험으로 확인). 시험 첫머리에서 deltaTime>0 을 확인해 허위 통과를 막는다",
+    "C": "모델, UI, 연출, 콜라이더"
+  },
+  "counts": {
+    "B1": 13,
+    "C": 11,
+    "B3": 8,
+    "A": 23,
+    "B2": 16,
+    "EXISTING": 24
+  },
+  "items": [
+    {
+      "id": "FR-MOVE-001",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.CurrentSpeed [public]"
+      ],
+      "note": "본문 확인(11-08): Move(dt)는 dt 를 인자로 받아 결정적. Intent 는 백킹 필드로 주입, _controller 는 필드 주입. 마지막에 CharacterController.Move 를 부르므로 EditMode 동작은 파일럿 확인. 안 되면 C 로 내림"
+    },
+    {
+      "id": "FR-MOVE-002",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.CurrentSpeed [public]"
+      ],
+      "note": "본문 확인(11-08): Move(dt)는 dt 를 인자로 받아 결정적. Intent 는 백킹 필드로 주입, _controller 는 필드 주입. 마지막에 CharacterController.Move 를 부르므로 EditMode 동작은 파일럿 확인. 안 되면 C 로 내림"
+    },
+    {
+      "id": "FR-MOVE-003",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.CurrentSpeed [public]"
+      ],
+      "note": "본문 확인(11-08): Move(dt)는 dt 를 인자로 받아 결정적. Intent 는 백킹 필드로 주입, _controller 는 필드 주입. 마지막에 CharacterController.Move 를 부르므로 EditMode 동작은 파일럿 확인. 안 되면 C 로 내림"
+    },
+    {
+      "id": "FR-MOVE-004",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.CurrentSpeed [public]"
+      ],
+      "note": "본문 확인(11-08): Move(dt)는 dt 를 인자로 받아 결정적. Intent 는 백킹 필드로 주입, _controller 는 필드 주입. 마지막에 CharacterController.Move 를 부르므로 EditMode 동작은 파일럿 확인. 안 되면 C 로 내림"
+    },
+    {
+      "id": "FR-MOVE-005",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.CurrentSpeed [public]"
+      ],
+      "note": "본문 확인(11-08): Move(dt)는 dt 를 인자로 받아 결정적. Intent 는 백킹 필드로 주입, _controller 는 필드 주입. 마지막에 CharacterController.Move 를 부르므로 EditMode 동작은 파일럿 확인. 안 되면 C 로 내림"
+    },
+    {
+      "id": "FR-MOVE-006",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.ResolveDirection(Vector2) [private]",
+        "PlayerCharacter.ApplyRotation(float dt) [private]"
+      ],
+      "note": "회전 속도 보간(900~300도/초). Move(dt) 안의 steerSpeed 보간이라 _horizontalVelocity 주입 후 Move(dt) 로 확인"
+    },
+    {
+      "id": "FR-MOVE-007",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.Move(float dt) [private]",
+        "PlayerCharacter.ResolveDirection(Vector2) [private]",
+        "PlayerCharacter.ApplyRotation(float dt) [private]"
+      ],
+      "note": "회전 속도 보간(900~300도/초). Move(dt) 안의 steerSpeed 보간이라 _horizontalVelocity 주입 후 Move(dt) 로 확인"
+    },
+    {
+      "id": "FR-MOVE-010",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.ApplyRotation(float dt) [private]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-MOVE-008",
+      "module": "MOVE",
+      "class": "B1",
+      "targets": [
+        "PlayerCharacter.ApplyRotation(float dt) [private]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-MOVE-009",
+      "module": "MOVE",
+      "class": "C",
+      "targets": [
+        "경계 콜라이더(씬 구성)"
+      ],
+      "note": "물리 충돌. Play Mode 또는 수동"
+    },
+    {
+      "id": "FR-INT-001",
+      "module": "INT",
+      "class": "C",
+      "targets": [
+        "Station.SetHighlighted(bool) [public]"
+      ],
+      "note": "노란 링 표시는 시각. 본문 확인(11-08): _highlightVisual 의 활성 여부는 상태로 확인 가능(선택). 탐지 범위 판정은 물리 질의"
+    },
+    {
+      "id": "FR-INT-002",
+      "module": "INT",
+      "class": "B3",
+      "targets": [
+        "PlayerInteraction.HandleInteract() [private]",
+        "PlayerInteraction.UpdateFocus() [private]",
+        "PlayerInteraction.ScoreTarget(...) [private]"
+      ],
+      "note": "본문 확인(11-08): _focused/_focusedLooseItem/_hands 를 필드로 주입하고 HandleInteract 호출. 근접 줍기(INT-009)는 ScoreTarget(closeRange) 순수 계산으로 확인. UpdateFocus 는 물리 질의라 제외"
+    },
+    {
+      "id": "FR-INT-009",
+      "module": "INT",
+      "class": "B3",
+      "targets": [
+        "PlayerInteraction.HandleInteract() [private]",
+        "PlayerInteraction.UpdateFocus() [private]",
+        "PlayerInteraction.ScoreTarget(...) [private]"
+      ],
+      "note": "본문 확인(11-08): _focused/_focusedLooseItem/_hands 를 필드로 주입하고 HandleInteract 호출. 근접 줍기(INT-009)는 ScoreTarget(closeRange) 순수 계산으로 확인. UpdateFocus 는 물리 질의라 제외"
+    },
+    {
+      "id": "FR-INT-003",
+      "module": "INT",
+      "class": "A",
+      "targets": [
+        "CounterStation.TryTake() [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-INT-004",
+      "module": "INT",
+      "class": "A",
+      "targets": [
+        "CounterStation.TryPlace(Carryable) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-INT-005",
+      "module": "INT",
+      "class": "A",
+      "targets": [
+        "CounterStation.TryPlace(Carryable) [public]",
+        "PlateItem.TryAdd(IngredientItem) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-INT-006",
+      "module": "INT",
+      "class": "A",
+      "targets": [
+        "CounterStation.TryTransferTo(PlateItem) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-INT-007",
+      "module": "INT",
+      "class": "B3",
+      "targets": [
+        "PlayerInteraction.HandleInteract() [private]",
+        "PlayerHands.Hold(Carryable) [public]"
+      ],
+      "note": "본문 확인(11-08): 한 손 제한은 HandleInteract 의 IsEmpty 분기(손이 차 있으면 줍기·집기 생략)에서 결정됨"
+    },
+    {
+      "id": "FR-INT-008",
+      "module": "INT",
+      "class": "A",
+      "targets": [
+        "CounterStation.TryPlace(Carryable) [public]"
+      ],
+      "note": "받을 수 없는 물건 거부 시 손과 설비 상태 불변 확인"
+    },
+    {
+      "id": "FR-DROP-001",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "PlayerDropThrow.Update() [private]",
+        "PlayerDropThrow.DropAtFeet() [private]"
+      ],
+      "note": "본문 확인(11-08): 입력은 IIntentSource 인터페이스라 가짜 공급자 주입 가능, 누른 시간은 _holdTime 필드로 임계 직전에 세팅(경계 한 쌍). Update 는 Time.deltaTime 누적(측정값 사용)"
+    },
+    {
+      "id": "FR-DROP-002",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "PlayerDropThrow.Update() [private]",
+        "PlayerDropThrow.DropAtFeet() [private]"
+      ],
+      "note": "본문 확인(11-08): 입력은 IIntentSource 인터페이스라 가짜 공급자 주입 가능, 누른 시간은 _holdTime 필드로 임계 직전에 세팅(경계 한 쌍). Update 는 Time.deltaTime 누적(측정값 사용)"
+    },
+    {
+      "id": "FR-DROP-003",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "PlayerDropThrow.Update() [private]",
+        "PlayerDropThrow.DropAtFeet() [private]"
+      ],
+      "note": "본문 확인(11-08): 입력은 IIntentSource 인터페이스라 가짜 공급자 주입 가능, 누른 시간은 _holdTime 필드로 임계 직전에 세팅(경계 한 쌍). Update 는 Time.deltaTime 누적(측정값 사용)"
+    },
+    {
+      "id": "FR-DROP-004",
+      "module": "DROP",
+      "class": "B3",
+      "targets": [
+        "PlayerDropThrow.Throw(float power) [private]",
+        "ThrownItem.Launch(item, origin, velocity) [public static]"
+      ],
+      "note": "발사 속도 6~14 m/s, 각도 24도는 시간과 무관한 계산. 속도는 ThrownItem._velocity 를 리플렉션으로 읽음(스핀만 Random)"
+    },
+    {
+      "id": "FR-DROP-005",
+      "module": "DROP",
+      "class": "B3",
+      "targets": [
+        "ThrownItem.TryLandOnStation(Vector3) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "본문 확인(11-08): FindStation 이 Physics.OverlapSphereNonAlloc 을 사용 -> 콜라이더 배치가 필요(패턴 P8, 파일럿 확인). 안 되면 C"
+    },
+    {
+      "id": "FR-DROP-006",
+      "module": "DROP",
+      "class": "B3",
+      "targets": [
+        "ThrownItem.TryLandOnStation(Vector3) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "본문 확인(11-08): FindStation 이 Physics.OverlapSphereNonAlloc 을 사용 -> 콜라이더 배치가 필요(패턴 P8, 파일럿 확인). 안 되면 C"
+    },
+    {
+      "id": "FR-DROP-007",
+      "module": "DROP",
+      "class": "B3",
+      "targets": [
+        "ThrownItem.TryLandOnStation(Vector3) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "본문 확인(11-08): FindStation 이 Physics.OverlapSphereNonAlloc 을 사용 -> 콜라이더 배치가 필요(패턴 P8, 파일럿 확인). 안 되면 C"
+    },
+    {
+      "id": "FR-DROP-008",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "ThrownItem.Update() [private]",
+        "ThrownItem.LandOnGround(Vector3) [private]"
+      ],
+      "note": "y<=0 착지와 4초 제한은 상태 세팅 후 Update 한 번으로 경계 분기만 확인 가능성"
+    },
+    {
+      "id": "FR-DROP-009",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "ThrownItem.Update() [private]",
+        "ThrownItem.LandOnGround(Vector3) [private]"
+      ],
+      "note": "y<=0 착지와 4초 제한은 상태 세팅 후 Update 한 번으로 경계 분기만 확인 가능성"
+    },
+    {
+      "id": "FR-DROP-010",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "PlayerDropThrow.Update() [private]",
+        "PlayerDropThrow.DropAtFeet() [private]"
+      ],
+      "note": "본문 확인(11-08): 입력은 IIntentSource 인터페이스라 가짜 공급자 주입 가능, 누른 시간은 _holdTime 필드로 임계 직전에 세팅(경계 한 쌍). Update 는 Time.deltaTime 누적(측정값 사용)"
+    },
+    {
+      "id": "FR-DROP-011",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "PlayerDropThrow.Update() [private]",
+        "PlayerDropThrow.DropAtFeet() [private]"
+      ],
+      "note": "본문 확인(11-08): 입력은 IIntentSource 인터페이스라 가짜 공급자 주입 가능, 누른 시간은 _holdTime 필드로 임계 직전에 세팅(경계 한 쌍). Update 는 Time.deltaTime 누적(측정값 사용)"
+    },
+    {
+      "id": "FR-DROP-012",
+      "module": "DROP",
+      "class": "B2",
+      "targets": [
+        "PlayerDropThrow.Update() [private]",
+        "PlayerDropThrow.DropAtFeet() [private]"
+      ],
+      "note": "본문 확인(11-08): 입력은 IIntentSource 인터페이스라 가짜 공급자 주입 가능, 누른 시간은 _holdTime 필드로 임계 직전에 세팅(경계 한 쌍). Update 는 Time.deltaTime 누적(측정값 사용)"
+    },
+    {
+      "id": "FR-DROP-013",
+      "module": "DROP",
+      "class": "B1",
+      "targets": [
+        "ThrownItem.ApplyHoming(Vector3 position, float dt) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "유도 반경 2.2m, 강도 (끌림-1)x11x근접도^2. 본문 확인(11-08): ApplyHoming 안에서 FindStation(물리 질의)을 호출 -> 콜라이더 필요(P8)"
+    },
+    {
+      "id": "FR-DROP-014",
+      "module": "DROP",
+      "class": "B1",
+      "targets": [
+        "ThrownItem.ApplyHoming(Vector3 position, float dt) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "유도 반경 2.2m, 강도 (끌림-1)x11x근접도^2. 본문 확인(11-08): ApplyHoming 안에서 FindStation(물리 질의)을 호출 -> 콜라이더 필요(P8)"
+    },
+    {
+      "id": "FR-DROP-015",
+      "module": "DROP",
+      "class": "B1",
+      "targets": [
+        "ThrownItem.ApplyHoming(Vector3 position, float dt) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "유도 반경 2.2m, 강도 (끌림-1)x11x근접도^2. 본문 확인(11-08): ApplyHoming 안에서 FindStation(물리 질의)을 호출 -> 콜라이더 필요(P8)"
+    },
+    {
+      "id": "FR-DROP-016",
+      "module": "DROP",
+      "class": "B1",
+      "targets": [
+        "ThrownItem.ApplyHoming(Vector3 position, float dt) [private]",
+        "ThrownItem.FindStation(...) [private]"
+      ],
+      "note": "유도 반경 2.2m, 강도 (끌림-1)x11x근접도^2. 본문 확인(11-08): ApplyHoming 안에서 FindStation(물리 질의)을 호출 -> 콜라이더 필요(P8)"
+    },
+    {
+      "id": "FR-DROP-017",
+      "module": "DROP",
+      "class": "B3",
+      "targets": [
+        "ThrownItem.WeightedDistance(Vector3, Vector3) [private static]"
+      ],
+      "note": "본문 확인(11-08): 순수 계산(높이 차이 x0.45)이라 물리 없이 시험 가능"
+    },
+    {
+      "id": "FR-COOK-001",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.TryPlace(Carryable) [public]"
+      ],
+      "note": "손질 가능 + Raw 만 받음"
+    },
+    {
+      "id": "FR-COOK-002",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.TryPlace(Carryable) [public]"
+      ],
+      "note": "손질 가능 + Raw 만 받음"
+    },
+    {
+      "id": "FR-COOK-003",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.OnWorkHeld(float deltaSeconds) [public]",
+        "IngredientItem.AddProgress(float) [public]"
+      ],
+      "note": "진행도 += dt / 손질시간"
+    },
+    {
+      "id": "FR-COOK-004",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.OnWorkReleased() [public]",
+        "IngredientItem.ProcessProgress [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-005",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.TryTake() / TryPlace() [public]",
+        "CuttingStation.OnWorkHeld(dt) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-006",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.OnWorkHeld(dt) [public]",
+        "IngredientItem.SetState(Chopped) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-007",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.OnWorkHeld(dt) [public]",
+        "IngredientItem.ChangeTo(IngredientDefinition) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-008",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "StoveStation.TryPlace(Carryable) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-009",
+      "module": "COOK",
+      "class": "B2",
+      "targets": [
+        "StoveStation.Update() [private]",
+        "IngredientItem.AddProgress / AddOverCook(dt) [public]"
+      ],
+      "note": "시간 경과 판정은 Update 안. AddProgress/AddOverCook 자체는 public 이라 임계 계산은 직접 확인 가능"
+    },
+    {
+      "id": "FR-COOK-010",
+      "module": "COOK",
+      "class": "B2",
+      "targets": [
+        "StoveStation.Update() [private]",
+        "IngredientItem.AddProgress / AddOverCook(dt) [public]"
+      ],
+      "note": "시간 경과 판정은 Update 안. AddProgress/AddOverCook 자체는 public 이라 임계 계산은 직접 확인 가능"
+    },
+    {
+      "id": "FR-COOK-011",
+      "module": "COOK",
+      "class": "C",
+      "targets": [
+        "StationProgressView(진행바 색)"
+      ],
+      "note": "UI"
+    },
+    {
+      "id": "FR-COOK-012",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "IngredientItem.IsBurned [public]",
+        "CounterStation.CanAccept(...) [protected]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-013",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "TrashStation.TryPlace(Carryable) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-COOK-015",
+      "module": "COOK",
+      "class": "C",
+      "targets": [
+        "IngredientItem.RefreshModel() [private]"
+      ],
+      "note": "모델 교체"
+    },
+    {
+      "id": "FR-COOK-016",
+      "module": "COOK",
+      "class": "C",
+      "targets": [
+        "IngredientItem.RefreshModel() [private]"
+      ],
+      "note": "모델 교체"
+    },
+    {
+      "id": "FR-COOK-017",
+      "module": "COOK",
+      "class": "C",
+      "targets": [],
+      "note": "엑셀에서도 Blocked(재현 조건이 명세에 없음)"
+    },
+    {
+      "id": "FR-COOK-018",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.HasWorkPending [public]",
+        "CuttingStation.OnWorkHeld(dt) [public]"
+      ],
+      "note": "칼질 동작 정지(연출)는 제외"
+    },
+    {
+      "id": "FR-COOK-019",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "CuttingStation.OnWorkHeld(float) [public]"
+      ],
+      "note": "빈 도마"
+    },
+    {
+      "id": "FR-COOK-014",
+      "module": "COOK",
+      "class": "A",
+      "targets": [
+        "TrashStation.TryPlace(Carryable) [public]",
+        "PlateItem.ClearContents() [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-PLATE-001",
+      "module": "PLATE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-PLATE-002",
+      "module": "PLATE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-PLATE-003",
+      "module": "PLATE",
+      "class": "A",
+      "targets": [
+        "PlateItem.TryAdd(IngredientItem) [public]",
+        "PlateItem.TakeTop() [public]",
+        "PlateItem.CompareStackOrder [private static]"
+      ],
+      "note": "정렬 순서는 TakeTop 순서로 확인 가능성. LayoutStack 좌표는 부가"
+    },
+    {
+      "id": "FR-PLATE-004",
+      "module": "PLATE",
+      "class": "C",
+      "targets": [
+        "PlateItem.RefreshTopper(...) [private]"
+      ],
+      "note": "윗빵 모델 표시와 높이"
+    },
+    {
+      "id": "FR-PLATE-007",
+      "module": "PLATE",
+      "class": "C",
+      "targets": [
+        "PlateItem.RefreshTopper(...) [private]"
+      ],
+      "note": "윗빵 모델 표시와 높이"
+    },
+    {
+      "id": "FR-PLATE-008",
+      "module": "PLATE",
+      "class": "C",
+      "targets": [
+        "PlateItem.RefreshTopper(...) [private]"
+      ],
+      "note": "윗빵 모델 표시와 높이"
+    },
+    {
+      "id": "FR-PLATE-009",
+      "module": "PLATE",
+      "class": "A",
+      "targets": [
+        "PlateItem.TryAdd(IngredientItem) [public]",
+        "IngredientItem.SetPlateMode(bool) [public]",
+        "Carryable.IsLoose [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-PLATE-010",
+      "module": "PLATE",
+      "class": "A",
+      "targets": [
+        "CounterStation.TryTake() [public]"
+      ],
+      "note": "접시 우선 집기"
+    },
+    {
+      "id": "FR-PLATE-011",
+      "module": "PLATE",
+      "class": "B2",
+      "targets": [
+        "IngredientItem.Update() [private]",
+        "IngredientItem.SetPlateMode(bool) [public]"
+      ],
+      "note": "실험 결과 EditMode deltaTime>0. 시험 첫머리에서 deltaTime>0 확인 후 '줄지 않음'을 검증(허위 통과 방지)"
+    },
+    {
+      "id": "FR-PLATE-005",
+      "module": "PLATE",
+      "class": "A",
+      "targets": [
+        "Core RoundSimulation.SubmitPlate [public]",
+        "ServeStation.TryPlace(Carryable) [public]",
+        "PlateItem.BuildContents() [public]"
+      ],
+      "note": "판정 EmptyPlate 는 Core 쪽이라 Core 시험으로도 가능"
+    },
+    {
+      "id": "FR-PLATE-006",
+      "module": "PLATE",
+      "class": "A",
+      "targets": [
+        "PlateDispenser.ReturnPlate() / TryPlace(Carryable) [public]"
+      ],
+      "note": ""
+    },
+    {
+      "id": "FR-FRESH-001",
+      "module": "FRESH",
+      "class": "B2",
+      "targets": [
+        "IngredientItem.Update() [private]",
+        "IngredientItem.GroundLifeRemaining [public get]"
+      ],
+      "note": "실험 결과 기대값 = 시작값 - Time.deltaTime(같은 시점에 읽음)로 일치 확인. 유지 확인은 deltaTime>0 가드 필요"
+    },
+    {
+      "id": "FR-FRESH-002",
+      "module": "FRESH",
+      "class": "B2",
+      "targets": [
+        "IngredientItem.Update() [private]",
+        "Carryable.Dispose() -> Destroy(gameObject)"
+      ],
+      "note": "실험 결과 남은 시간을 0 직전으로 세팅하면 소멸 분기에 닿고 GroundLifeRemaining==0 이 됨. EditMode 에서 Destroy 는 'Destroy may not be called from edit mode!' 오류 로그를 남기고 오브젝트는 남음 -> LogAssert.Expect 로 처리"
+    },
+    {
+      "id": "FR-FRESH-003",
+      "module": "FRESH",
+      "class": "B2",
+      "targets": [
+        "IngredientItem.Update() [private]",
+        "IngredientItem.GroundLifeRemaining [public get]"
+      ],
+      "note": "실험 결과 기대값 = 시작값 - Time.deltaTime(같은 시점에 읽음)로 일치 확인. 유지 확인은 deltaTime>0 가드 필요"
+    },
+    {
+      "id": "FR-FRESH-004",
+      "module": "FRESH",
+      "class": "B2",
+      "targets": [
+        "IngredientItem.Update() [private]",
+        "IngredientItem.GroundLifeRemaining [public get]"
+      ],
+      "note": "실험 결과 기대값 = 시작값 - Time.deltaTime(같은 시점에 읽음)로 일치 확인. 유지 확인은 deltaTime>0 가드 필요"
+    },
+    {
+      "id": "FR-FRESH-005",
+      "module": "FRESH",
+      "class": "C",
+      "targets": [
+        "ItemFreshnessView(게이지 UI)",
+        "IngredientItem.IsSpoiling [public]"
+      ],
+      "note": "게이지 표시 자체는 UI. 표시 조건(IsSpoiling)만 A 로 올릴 수 있음"
+    },
+    {
+      "id": "FR-FRESH-006",
+      "module": "FRESH",
+      "class": "C",
+      "targets": [
+        "ItemFreshnessView(게이지 UI)",
+        "IngredientItem.IsSpoiling [public]"
+      ],
+      "note": "게이지 표시 자체는 UI. 표시 조건(IsSpoiling)만 A 로 올릴 수 있음"
+    },
+    {
+      "id": "FR-FRESH-007",
+      "module": "FRESH",
+      "class": "B2",
+      "targets": [
+        "IngredientItem.Update() [private]",
+        "IngredientItem.GroundLifeRemaining [public get]"
+      ],
+      "note": "실험 결과 기대값 = 시작값 - Time.deltaTime(같은 시점에 읽음)로 일치 확인. 유지 확인은 deltaTime>0 가드 필요"
+    },
+    {
+      "id": "FR-ORDER-001",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-002",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-003",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-004",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-005",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-006",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-007",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-008",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-009",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-010",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ORDER-011",
+      "module": "ORDER",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-001",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-002",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-003",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-004",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-005",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-006",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-SCORE-007",
+      "module": "SCORE",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ROUND-001",
+      "module": "ROUND",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ROUND-002",
+      "module": "ROUND",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ROUND-003",
+      "module": "ROUND",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    },
+    {
+      "id": "FR-ROUND-004",
+      "module": "ROUND",
+      "class": "EXISTING",
+      "targets": [],
+      "note": "NUnit 시험이 이미 있음(비교 기준)"
+    }
+  ]
+}
