@@ -11,14 +11,14 @@
 | test_patterns.json | 시험 패턴 P1~P9 |
 | baseline_tc.json | 수기 TC 24건을 JSON으로 옮긴 것(일치율 비교용) |
 | tc_design.schema.json, exec_plan.schema.json | 1단계, 2단계 출력 형식 |
-| models.json | 모델 프로필(환율, 단가, 키를 담을 환경 변수 이름) |
+| models.json | 모델 프로필(프로필 이름 = 모델 ID, 환율, 단가, 키를 담을 환경 변수 이름). 워크플로의 모델 드롭다운 목록과 같아야 한다 |
 
 ## GitHub Actions에서 실행(기본 방법)
 
 `.github/workflows/generate-tests.yml`이 생성기를 빌드하고 모델을 호출한다. 수동 실행 전용이다.
 
 1. Settings > Secrets and variables > Actions에 쓰려는 키를 등록한다: `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`. `SHARED_REPO_TOKEN`은 CI와 같은 것을 쓴다.
-2. Actions 탭 > "Generate tests (LLM)" > Run workflow에서 프로필, 요구사항(비우면 파일럿 6건), 호출 단위, 예산 상한(원)을 정한다.
+2. Actions 탭 > "Generate tests (LLM)" > Run workflow에서 회사(provider)를 고르고 그 회사의 모델 칸에서 모델을 고른다. 이어서 요구사항(비우면 파일럿 6건), 호출 단위, 예산 상한(원)을 정한다. GitHub는 선택에 따라 목록이 바뀌는 드롭다운을 지원하지 않아서 회사별 모델 칸이 따로 있고, 고른 회사의 칸만 쓰인다.
 3. 실행 순서는 연결 확인(doctor), 예상 비용, 생성, 요약이다. 요약 표와 결과 파일(1·2단계 JSON, `.cs`, `calls.jsonl`)은 실행 화면의 Summary와 Artifacts에 남는다.
 4. "결과를 브랜치와 PR로 올리고 EditMode 시험도 돌린다"를 켜 두면 `gen/<프로필>-<실행번호>` 브랜치와 PR이 만들어지고 CI가 같이 돈다. 통과율이 비교 자료다. PR은 통째로 병합하지 않는다.
 5. 로컬 모델은 LLM이 도는 PC에 self-hosted 실행기를 등록하고, 실행기 라벨(runner 입력)에 그 라벨을 준다. 주소와 모델 이름은 아래 `models.json`의 `local` 프로필에서 고친다.
@@ -38,9 +38,9 @@
 ## 실행(Testing.Shared 폴더에서)
 
     dotnet build Tools~\GeneratorCli -c Release -o out\cli
-    out\cli\Testing.Shared.Generator.Cli.exe doctor   --models <HK>\Tools\generator\models.json --profile haiku
+    out\cli\Testing.Shared.Generator.Cli.exe doctor   --models <HK>\Tools\generator\models.json --profile claude-haiku-5-5
     out\cli\Testing.Shared.Generator.Cli.exe estimate --models <HK>\Tools\generator\models.json --data <HK>\Tools\generator
-    out\cli\Testing.Shared.Generator.Cli.exe generate --models <HK>\Tools\generator\models.json --data <HK>\Tools\generator --profile haiku --budget-krw 500 --out <작업 폴더>\gen_out
+    out\cli\Testing.Shared.Generator.Cli.exe generate --models <HK>\Tools\generator\models.json --data <HK>\Tools\generator --profile claude-haiku-5-5 --budget-krw 500 --out <작업 폴더>\gen_out
 
 - `doctor`는 키 환경 변수, 주소, 모델을 확인하고 최소 호출 1번을 보낸다. 사용량과 비용(원)을 보여 준다.
 - `estimate`는 호출하지 않고 예상 비용(원)만 계산한다. 출력 토큰은 가정치다.
@@ -57,3 +57,7 @@
 - `gemini-3-8-flash`는 단가를 확인하지 못해 `price`가 비어 있다. 첫 `doctor` 결과의 사용량과 Google 가격 페이지를 보고 채운다.
 - 생각(thinking) 설정은 `extraBody`에 있다. 서버가 거부하면 `doctor`가 오류를 그대로 보여 준다.
 - 생성된 `.cs`는 사람이 검토하기 전에는 병합하지 않는다.
+
+## 단가 미등록 모델
+
+`models.json`에 `price`가 없는 API 모델(예: 가격표에 단가가 없는 최신 Gemini)은 예산 상한(원)이 듣지 않는다. 기본은 거부하며, 감수하고 쓰려면 워크플로의 `allow_unpriced`를 켜거나 CLI에 `--allow-unpriced true`를 준다. 단가가 공개되면 `price`를 채운다.

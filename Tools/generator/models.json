@@ -1,32 +1,36 @@
 {
-  "fx": { "USD": 1325, "CNY": 200 },
+  "fx": {"USD": 1325, "CNY": 200},
   "timeoutSeconds": 180,
   "networkRetries": 3,
   "profiles": {
-    "haiku": {
-      "kind": "api", "provider": "claude", "model": "claude-haiku-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY",
-      "price": { "currency": "USD", "inputPerM": 0.10, "outputPerM": 0.50 }
-    },
-    "sonnet": {
-      "kind": "api", "provider": "claude", "model": "claude-sonnet-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY",
-      "price": { "currency": "USD", "inputPerM": 2, "outputPerM": 10 }
-    },
-    "gemini-flash-lite": {
-      "kind": "api", "provider": "gemini", "model": "gemini-3.1-flash-lite", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json",
-      "extraBody": { "generationConfig": { "thinkingConfig": { "thinkingLevel": "low" } } },
-      "price": { "currency": "USD", "inputPerM": 0.25, "outputPerM": 1.5 }
-    },
-    "gemini-3-8-flash": {
-      "kind": "api", "provider": "gemini", "model": "gemini-3.8-flash", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json",
-      "extraBody": { "generationConfig": { "thinkingConfig": { "thinkingLevel": "low" } } }
-    },
-    "deepseek-flash": {
-      "kind": "api", "provider": "deepseek", "model": "deepseek-flash", "apiKeyEnv": "DEEPSEEK_API_KEY", "jsonMode": "json",
-      "extraBody": { "thinking": { "type": "disabled" } },
-      "price": { "currency": "CNY", "inputPerM": 2, "outputPerM": 8 }
-    },
-    "local": {
-      "kind": "local", "baseUrl": "http://localhost:11434/v1", "model": "qwen2.5-coder:7b", "jsonMode": "json"
-    }
+    "claude-fable-5-1": {"kind": "api", "provider": "claude", "model": "claude-fable-5-1", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 10, "outputPerM": 50}},
+    "claude-mythos-5-1": {"kind": "api", "provider": "claude", "model": "claude-mythos-5-1", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 10, "outputPerM": 50}},
+    "claude-fable-5": {"kind": "api", "provider": "claude", "model": "claude-fable-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 10, "outputPerM": 50}},
+    "claude-mythos-5": {"kind": "api", "provider": "claude", "model": "claude-mythos-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 10, "outputPerM": 50}},
+    "claude-opus-5-5": {"kind": "api", "provider": "claude", "model": "claude-opus-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 4, "outputPerM": 20}},
+    "claude-opus-5": {"kind": "api", "provider": "claude", "model": "claude-opus-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 5, "outputPerM": 25}},
+    "claude-opus-4-8": {"kind": "api", "provider": "claude", "model": "claude-opus-4-8", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 5, "outputPerM": 25}},
+    "claude-opus-4-7": {"kind": "api", "provider": "claude", "model": "claude-opus-4-7", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 5, "outputPerM": 25}},
+    "claude-opus-4-6": {"kind": "api", "provider": "claude", "model": "claude-opus-4-6", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 5, "outputPerM": 25}},
+    "claude-opus-4-5-20251101": {"kind": "api", "provider": "claude", "model": "claude-opus-4-5-20251101", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 5, "outputPerM": 25}},
+    "claude-sonnet-5-5": {"kind": "api", "provider": "claude", "model": "claude-sonnet-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 2, "outputPerM": 10}},
+    "claude-sonnet-5": {"kind": "api", "provider": "claude", "model": "claude-sonnet-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 2, "outputPerM": 10}},
+    "claude-sonnet-4-6": {"kind": "api", "provider": "claude", "model": "claude-sonnet-4-6", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 3, "outputPerM": 15}},
+    "claude-haiku-5-5": {"kind": "api", "provider": "claude", "model": "claude-haiku-5-5", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 0.1, "outputPerM": 0.5}},
+    "claude-haiku-4-5-20251001": {"kind": "api", "provider": "claude", "model": "claude-haiku-4-5-20251001", "apiKeyEnv": "ANTHROPIC_API_KEY", "price": {"currency": "USD", "inputPerM": 1, "outputPerM": 5}},
+    "gemini-4-argon": {"kind": "api", "provider": "gemini", "model": "gemini-4-argon", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json"},
+    "gemini-3.8-flash": {"kind": "api", "provider": "gemini", "model": "gemini-3.8-flash", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}},
+    "gemini-3.6-flash": {"kind": "api", "provider": "gemini", "model": "gemini-3.6-flash", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}},
+    "gemini-3.5-flash": {"kind": "api", "provider": "gemini", "model": "gemini-3.5-flash", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}, "price": {"currency": "USD", "inputPerM": 1.5, "outputPerM": 9}},
+    "gemini-3.5-flash-lite": {"kind": "api", "provider": "gemini", "model": "gemini-3.5-flash-lite", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}},
+    "gemini-3.1-flash-lite": {"kind": "api", "provider": "gemini", "model": "gemini-3.1-flash-lite", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}, "price": {"currency": "USD", "inputPerM": 0.25, "outputPerM": 1.5}},
+    "gemini-3.1-pro-preview": {"kind": "api", "provider": "gemini", "model": "gemini-3.1-pro-preview", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}, "price": {"currency": "USD", "inputPerM": 2, "outputPerM": 12}},
+    "gemini-3-flash-preview": {"kind": "api", "provider": "gemini", "model": "gemini-3-flash-preview", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "low"}}}, "price": {"currency": "USD", "inputPerM": 0.5, "outputPerM": 3}},
+    "gemini-2.5-pro": {"kind": "api", "provider": "gemini", "model": "gemini-2.5-pro", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingBudget": 128}}}, "price": {"currency": "USD", "inputPerM": 1.25, "outputPerM": 10}},
+    "gemini-2.5-flash": {"kind": "api", "provider": "gemini", "model": "gemini-2.5-flash", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingBudget": 0}}}, "price": {"currency": "USD", "inputPerM": 0.3, "outputPerM": 2.5}},
+    "gemini-2.5-flash-lite": {"kind": "api", "provider": "gemini", "model": "gemini-2.5-flash-lite", "apiKeyEnv": "GEMINI_API_KEY", "jsonMode": "json", "extraBody": {"generationConfig": {"thinkingConfig": {"thinkingBudget": 0}}}, "price": {"currency": "USD", "inputPerM": 0.1, "outputPerM": 0.4}},
+    "deepseek-flash": {"kind": "api", "provider": "deepseek", "model": "deepseek-flash", "apiKeyEnv": "DEEPSEEK_API_KEY", "jsonMode": "json", "extraBody": {"thinking": {"type": "disabled"}}, "price": {"currency": "CNY", "inputPerM": 2, "outputPerM": 8}},
+    "deepseek-v4-pro": {"kind": "api", "provider": "deepseek", "model": "deepseek-v4-pro", "apiKeyEnv": "DEEPSEEK_API_KEY", "jsonMode": "json", "extraBody": {"thinking": {"type": "disabled"}}, "price": {"currency": "CNY", "inputPerM": 9, "outputPerM": 27}},
+    "local": {"kind": "local", "baseUrl": "http://localhost:11434/v1", "model": "qwen2.5-coder:7b", "jsonMode": "json"}
   }
 }
