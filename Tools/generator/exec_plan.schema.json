@@ -15,7 +15,7 @@
     },
     "cases": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -53,6 +53,29 @@
             "items": {
               "$ref": "#/$defs/step"
             }
+          }
+        }
+      }
+    },
+    "unconvertible": {
+      "type": "array",
+      "description": "코드로 옮길 수 없는 TC 와 사유. cases 가 비어 있으면 모든 TC 를 여기에 적는다",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "designIndex",
+          "reason"
+        ],
+        "properties": {
+          "designIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
           }
         }
       }
