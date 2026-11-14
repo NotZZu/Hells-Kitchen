@@ -1,5 +1,13 @@
 {
   "basis": "Runtime 소스 본문 직접 확인(2026-11-08). 읽은 파일: PlayerCharacter, PlayerDropThrow, PlayerHands, PlayerInteraction, PlayerIntent/LocalIntentSource, ThrownItem, Carryable, IngredientItem, PlateItem, ItemFactory, Station 및 하위 설비 7종, IngredientDefinition, GameSession",
+  "enums": [
+    { "name": "IngredientType", "namespace": "HellsKitchen.Core.Ingredients" },
+    { "name": "ProcessState", "namespace": "HellsKitchen.Core.Ingredients" },
+    { "name": "OrderRemovalReason", "namespace": "HellsKitchen.Core.Orders" },
+    { "name": "RoundState", "namespace": "HellsKitchen.Core.Orders" },
+    { "name": "ServeOutcome", "namespace": "HellsKitchen.Core.Orders" },
+    { "name": "ModifierKind", "namespace": "HellsKitchen.Core.Recipes" }
+  ],
   "classes": [
     {
       "class": "PlayerCharacter",
