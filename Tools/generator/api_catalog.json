@@ -1,29 +1,67 @@
 {
-  "basis": "Runtime 소스 본문 직접 확인(2026-11-08). 읽은 파일: PlayerCharacter, PlayerDropThrow, PlayerHands, PlayerInteraction, PlayerIntent/LocalIntentSource, ThrownItem, Carryable, IngredientItem, PlateItem, ItemFactory, Station 및 하위 설비 7종, IngredientDefinition, GameSession / 수명주기(lifecycle)·requires 항목 추가(2026-11-15)",
+  "basis": "Runtime 소스 본문 직접 확인(2026-11-08). 읽은 파일: PlayerCharacter, PlayerDropThrow, PlayerHands, PlayerInteraction, PlayerIntent/LocalIntentSource, ThrownItem, Carryable, IngredientItem, PlateItem, ItemFactory, Station 및 하위 설비 7종, IngredientDefinition, GameSession / 수명주기(lifecycle)·requires 항목 추가(2026-11-15) / enums.values, needs, implements 항목 추가(2026-11-15)",
   "enums": [
     {
       "name": "IngredientType",
-      "namespace": "HellsKitchen.Core.Ingredients"
+      "namespace": "HellsKitchen.Core.Ingredients",
+      "values": [
+        "None",
+        "Bun",
+        "Patty",
+        "Lettuce",
+        "Tomato",
+        "Cheese",
+        "Onion",
+        "Potato",
+        "Carrot",
+        "Steak",
+        "Ham"
+      ]
     },
     {
       "name": "ProcessState",
-      "namespace": "HellsKitchen.Core.Ingredients"
+      "namespace": "HellsKitchen.Core.Ingredients",
+      "values": [
+        "Raw",
+        "Chopped",
+        "Cooked",
+        "Burned"
+      ]
     },
     {
       "name": "OrderRemovalReason",
-      "namespace": "HellsKitchen.Core.Orders"
+      "namespace": "HellsKitchen.Core.Orders",
+      "values": [
+        "Served",
+        "Expired",
+        "Cleared"
+      ]
     },
     {
       "name": "RoundState",
-      "namespace": "HellsKitchen.Core.Orders"
+      "namespace": "HellsKitchen.Core.Orders",
+      "values": [
+        "Ready",
+        "Running",
+        "Finished"
+      ]
     },
     {
       "name": "ServeOutcome",
-      "namespace": "HellsKitchen.Core.Orders"
+      "namespace": "HellsKitchen.Core.Orders",
+      "values": [
+        "Success",
+        "Mismatch",
+        "EmptyPlate"
+      ]
     },
     {
       "name": "ModifierKind",
-      "namespace": "HellsKitchen.Core.Recipes"
+      "namespace": "HellsKitchen.Core.Recipes",
+      "values": [
+        "Add",
+        "Remove"
+      ]
     }
   ],
   "classes": [
@@ -171,6 +209,9 @@
       "lifecycle": [
         "Awake",
         "Start"
+      ],
+      "needs": [
+        "IIntentSource"
       ]
     },
     {
@@ -305,6 +346,9 @@
       "baseClass": "MonoBehaviour",
       "lifecycle": [
         "Awake"
+      ],
+      "needs": [
+        "IIntentSource"
       ]
     },
     {
@@ -524,6 +568,9 @@
       "baseClass": "MonoBehaviour",
       "lifecycle": [
         "Awake"
+      ],
+      "needs": [
+        "IIntentSource"
       ]
     },
     {
@@ -1664,7 +1711,10 @@
         }
       ],
       "risks": [],
-      "lifecycle": []
+      "lifecycle": [],
+      "implements": [
+        "IIntentSource"
+      ]
     }
   ]
 }
