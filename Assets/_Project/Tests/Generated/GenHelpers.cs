@@ -27,6 +27,43 @@ namespace HellsKitchen.Tests.Generated
             return go.AddComponent<T>();
         }
 
+        /// <summary>
+        /// 이미 만든 컴포넌트와 같은 오브젝트에 새 컴포넌트를 붙인다.
+        /// 같은 오브젝트에서 서로를 GetComponent 로 찾는 컴포넌트를 시험할 때 쓴다.
+        /// </summary>
+        public static T AddTo<T>(Component owner) where T : Component
+        {
+            return owner.gameObject.AddComponent<T>();
+        }
+
+        /// <summary>
+        /// Unity 가 오브젝트를 시작할 때 부르는 초기화(Awake, OnEnable)를 직접 실행한다.
+        /// EditMode 에서는 이 함수들이 자동으로 불리지 않아서, GetComponent 로 채우는 필드가 비어 있게 된다.
+        /// 선언되지 않은 함수는 건너뛰고, 게임 코드가 던진 예외는 그대로 다시 던진다. Unity 의 호출 순서(Awake 다음 OnEnable)를 따른다.
+        /// </summary>
+        public static void Awake(object target)
+        {
+            foreach (var name in new[] { "Awake", "OnEnable" })
+            {
+                for (var t = target.GetType(); t != null; t = t.BaseType)
+                {
+                    var m = t.GetMethod(name, All | BindingFlags.DeclaredOnly, null, Type.EmptyTypes, null);
+                    if (m == null) continue;
+
+                    try
+                    {
+                        m.Invoke(target, null);
+                    }
+                    catch (TargetInvocationException e)
+                    {
+                        ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                    }
+
+                    break;
+                }
+            }
+        }
+
         public static T Scriptable<T>() where T : ScriptableObject
         {
             var so = ScriptableObject.CreateInstance<T>();

@@ -5,6 +5,7 @@
         "HellsKitchen.Core",
         "HellsKitchen.Data",
         "HellsKitchen.Runtime",
+        "HellsKitchen.Tests.Support",
         "Testing.Shared.Traceability",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
