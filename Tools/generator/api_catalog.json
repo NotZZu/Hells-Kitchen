@@ -161,7 +161,10 @@
           "visibility": "private",
           "readsTimeDeltaTime": false,
           "usesPhysicsQuery": false,
-          "note": "dt 를 인자로 받음 -> 결정적. 끝에서 _controller.Move(...) 호출(EditMode 동작은 파일럿에서 확인)"
+          "note": "dt 를 인자로 받음 -> 결정적. 끝에서 _controller.Move(...) 호출(EditMode 동작은 파일럿에서 확인)",
+          "needsSet": [
+            "<Intent>k__BackingField"
+          ]
         },
         {
           "name": "ApplyRotation",
@@ -349,6 +352,11 @@
       ],
       "needs": [
         "IIntentSource"
+      ],
+      "companions": [
+        "PlayerHands",
+        "IngredientItem",
+        "IngredientDefinition"
       ]
     },
     {
@@ -571,6 +579,11 @@
       ],
       "needs": [
         "IIntentSource"
+      ],
+      "companions": [
+        "PlayerHands",
+        "IngredientItem",
+        "IngredientDefinition"
       ]
     },
     {
@@ -970,7 +983,10 @@
       ],
       "kind": "component",
       "baseClass": "Carryable",
-      "lifecycle": []
+      "lifecycle": [],
+      "companions": [
+        "IngredientDefinition"
+      ]
     },
     {
       "class": "IngredientDefinition",
@@ -1342,7 +1358,11 @@
       "risks": [],
       "kind": "component",
       "baseClass": "CounterStation",
-      "lifecycle": []
+      "lifecycle": [],
+      "companions": [
+        "IngredientItem",
+        "IngredientDefinition"
+      ]
     },
     {
       "class": "StoveStation",
@@ -1416,7 +1436,11 @@
       ],
       "kind": "component",
       "baseClass": "CounterStation",
-      "lifecycle": []
+      "lifecycle": [],
+      "companions": [
+        "IngredientItem",
+        "IngredientDefinition"
+      ]
     },
     {
       "class": "TrashStation",
@@ -1454,7 +1478,11 @@
       ],
       "kind": "component",
       "baseClass": "Station",
-      "lifecycle": []
+      "lifecycle": [],
+      "companions": [
+        "IngredientItem",
+        "IngredientDefinition"
+      ]
     },
     {
       "class": "PlateDispenser",
@@ -1536,6 +1564,10 @@
       "baseClass": "Station",
       "lifecycle": [
         "Start"
+      ],
+      "companions": [
+        "IngredientItem",
+        "IngredientDefinition"
       ]
     },
     {
